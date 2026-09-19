@@ -105,6 +105,22 @@ działa poprawnie wpięty samodzielnie w swoją warstwę — problem dotyczy
 wyłącznie łączenia dwóch niezależnych warstw przez obecny sekwencyjny
 łańcuch.
 
+**Drugie ograniczenie, znalezione empirycznie na realnych danych (nie na
+syntetykach z testów jednostkowych):** `crossing_number` w wersji
+zwektoryzowanej trzyma w pamięci macierz (n, n) wszystkich par segmentów —
+O(n²) pamięci. Realne okno Paderborn (64000 próbek, 1 s @ 64 kHz) próbuje
+zaalokować ~65 GB i się wywala. Funkcja teraz odmawia okien dłuższych niż
+`max_length` (domyślnie 3000) z czytelnym `TimdrOperatorsError`, zamiast
+surowego `MemoryError` — realne, długie okna trzeba samodzielnie
+zdownsamplować lub podzielić na fragmenty przed wywołaniem. Zweryfikowane
+end-to-end na zamrożonym, autoryzowanym oknie treningowym Paderborn (bez
+dotykania holdoutu):
+
+```powershell
+.venv\Scripts\python.exe -m pip install unrar-cffi scipy numpy
+python examples\run_timdr_operators_on_paderborn.py
+```
+
 ## Lekki lokalnie, uczący się z sieci
 
 Lokalny komputer ma wykonywać mało pracy: jeden proces naraz, bez kopii

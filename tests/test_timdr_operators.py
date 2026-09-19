@@ -59,6 +59,20 @@ def test_crossing_number_runs_and_is_nonnegative():
     assert crossing_number(signal) >= 0.0
 
 
+def test_crossing_number_refuses_oversized_window_with_clear_error():
+    """Found by running the ported operators on a real 64000-sample Paderborn
+    vibration window (1s @ 64kHz): the vectorized O(n^2) implementation would
+    attempt a ~61 GB allocation and crash with a bare MemoryError. It must
+    instead fail loudly and clearly, before attempting the allocation. Uses a
+    small n + small max_length here so the test itself stays cheap -- the
+    real-world trigger (n=64000, default max_length=3000) is documented in
+    crossing_number's own docstring and examples/run_timdr_operators_on_paderborn.py."""
+    n = 5000
+    signal = [math.sin(2 * math.pi * 5 * i / n) for i in range(n)]
+    with pytest.raises(TimdrOperatorsError, match="too long"):
+        crossing_number(signal, max_length=1000)
+
+
 def test_layer_m_modal_wired_with_fft_dominant_mode():
     fs = 500.0
     n = 500

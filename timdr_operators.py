@@ -192,17 +192,37 @@ def _cross2(u, v):
     return u[..., 0] * v[..., 1] - u[..., 1] * v[..., 0]
 
 
-def crossing_number(window: Sequence[float]) -> float:
+def crossing_number(window: Sequence[float], *, max_length: int = 3000) -> float:
     """Count of non-adjacent self-intersections of the same embedded curve.
 
     Vectorized (all segment pairs at once); mathematically identical to the
     naive double loop in the source repo, changed only for speed on larger
     windows -- see that repo's commit history for the timing that motivated it.
+
+    SCALING WARNING, found empirically (not in the source repo) while wiring
+    this into real Paderborn vibration windows: the vectorized form holds an
+    (n, n) matrix of pairwise cross products in memory -- O(n^2) memory and
+    compute. A real sensor's native window is often much longer than any
+    synthetic window this function was validated on: Paderborn's is 64000
+    samples (1 s @ 64 kHz), which would attempt a ~61 GB allocation and crash
+    with a bare MemoryError. This function now refuses windows longer than
+    ``max_length`` (default 3000, ~1.3 GB worst case) with a clear
+    TimdrOperatorsError instead. Downsample or chunk a long real-world window
+    before calling this, or pass a larger max_length only if you have
+    verified you have the RAM for it.
     """
     np = _require_numpy("crossing_number")
     pts3d = _embed_3d(window)
     if pts3d is None:
         return 0.0
+    if len(pts3d) > max_length:
+        approx_gb = (len(pts3d) ** 2 * 2 * 8) / 1e9
+        raise TimdrOperatorsError(
+            f"crossing_number: window too long for the O(n^2) vectorized algorithm "
+            f"({len(pts3d)} samples > max_length={max_length}); this would attempt a "
+            f"~{approx_gb:.1f} GB allocation. Downsample/chunk the window first, or "
+            "pass a larger max_length only if you have confirmed you have the RAM."
+        )
     pts2d = _project_pca_2d(pts3d)
     if pts2d is None or len(pts2d) < 4:
         return 0.0
