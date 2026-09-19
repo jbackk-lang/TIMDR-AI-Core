@@ -32,6 +32,9 @@ if /I "%~1"=="--learn" goto :learning_demo
 if /I "%~1"=="--b4-boundary" goto :b4_boundary
 if /I "%~1"=="--protect90-freeze" goto :protect90_freeze
 if /I "%~1"=="--protect90" goto :protect90_train
+if /I "%~1"=="--protect90-waveform-freeze" goto :protect90_waveform_freeze
+if /I "%~1"=="--protect90-waveform" goto :protect90_waveform_train
+if /I "%~1"=="--external-source" goto :external_source
 
 echo.
 echo Uruchamiam szybkie demo protokolu.
@@ -82,6 +85,46 @@ exit /b %ERRORLEVEL%
 echo Uzycie:
 echo   run.bat --protect90-freeze "C:\sciezka\TIMDR-Grid-Monitor"
 echo   run.bat --protect90 "C:\sciezka\TIMDR-Grid-Monitor"
+echo   run.bat --protect90-waveform-freeze "C:\sciezka\TIMDR-Grid-Monitor"
+echo   run.bat --protect90-waveform "C:\sciezka\TIMDR-Grid-Monitor"
+pause
+exit /b 2
+
+:protect90_waveform_freeze
+if "%~2"=="" goto :protect90_usage
+echo.
+echo Zamrazam osobna hipoteze cech z przebiegow EMT...
+%PY% examples\create_protect90_waveform_prereg.py "%~2"
+pause
+exit /b %ERRORLEVEL%
+
+:protect90_waveform_train
+if "%~2"=="" goto :protect90_usage
+%PY% -c "import numpy, pandas" >nul 2>&1
+if errorlevel 1 goto :waveform_dependencies
+echo.
+echo Uruchamiam waveform train/calibration; holdout nie bedzie otwierany...
+%PY% examples\train_protect90_waveform.py "%~2"
+pause
+exit /b %ERRORLEVEL%
+
+:waveform_dependencies
+echo Brakuje opcjonalnych zaleznosci numpy i pandas dla przebiegow EMT.
+echo Zainstaluj je jawnie, a potem uruchom ponownie:
+echo   .venv\Scripts\python.exe -m pip install -e ".[waveform]"
+pause
+exit /b 3
+
+:external_source
+if "%~3"=="" goto :external_source_usage
+echo.
+echo Pobieram tylko jawnie zadeklarowane i sumowane SHA-256 zrodlo...
+%PY% examples\download_external_evidence.py "%~2" "%~3"
+pause
+exit /b %ERRORLEVEL%
+
+:external_source_usage
+echo Uzycie: run.bat --external-source "manifest.json" "source_id"
 pause
 exit /b 2
 

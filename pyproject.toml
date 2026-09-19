@@ -14,9 +14,10 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
+waveform = ["numpy>=1.24", "pandas>=2.0"]
 
 [tool.setuptools]
-py-modules = ["timdr_ai_core"]
+py-modules = ["timdr_ai_core", "learning_sandbox", "protect90_learning_adapter", "protect90_waveform_learning"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

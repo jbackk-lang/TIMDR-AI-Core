@@ -2,3 +2,6 @@ __pycache__/
 .pytest_cache/
 *.py[cod]
 learning_runs/
+external_cache/
+.venv/
+*.egg-info/

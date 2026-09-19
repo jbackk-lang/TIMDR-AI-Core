@@ -1,0 +1,13 @@
+{
+  "schema": "timdr-external-evidence-sources/1",
+  "policy": "Each source needs an explicit HTTPS URL and SHA-256 before download. Downloaded material is not training data by default.",
+  "sources": [
+    {
+      "id": "replace-with-stable-source-id",
+      "url": "https://example.org/file.ext",
+      "sha256": "replace-with-64-lowercase-hex-characters",
+      "filename": "source.ext",
+      "purpose": "documentation or candidate dataset only"
+    }
+  ]
+}

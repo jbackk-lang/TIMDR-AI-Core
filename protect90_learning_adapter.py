@@ -19,6 +19,7 @@ from learning_sandbox import Sample
 DATASET_ID = "PROTECT-90 v1.0.0"
 PREREG_SCHEMA = "timdr-protect90-learning-prereg/1"
 PREREG_VERSION = "PROTECT90_MULTICLASS_v0.1"
+WAVEFORM_PREREG_VERSION = "PROTECT90_WAVEFORM_MULTICLASS_v0.3"
 SPLIT_SEED = "PROTECT90_MULTICLASS_v0.1:fixed-stratified"
 FEATURE_COLUMNS = (
     "t_evnt_start", "t_evnt_end", "sc_location", "phase_select",
@@ -26,6 +27,19 @@ FEATURE_COLUMNS = (
     "ext_grid_1_u_setp", "ext_grid_1_short_circuit_power",
     "load_3_plini", "load_3_qlini",
 )
+WAVEFORM_FEATURES = {
+    "window": "full 1 s episode; no event-time labels are read during feature extraction",
+    "sampling_rate_hz": 6400.0,
+    "rms_block_samples": 64,
+    "baseline": "first 20 RMS blocks (200 ms)",
+    "zero_baseline_rule": "If a channel's baseline RMS is <= 1e-12, its corresponding normalized feature is 0.0 (inactive channel); no division is performed.",
+    "per_measurement_location": [
+        "three-phase current peak RMS divided by baseline current RMS",
+        "three-phase voltage minimum RMS divided by baseline voltage RMS",
+    ],
+    "location_order": "lexicographic from columns ending _vol_L1_V",
+    "expected_feature_count": 16,
+}
 
 
 class Protect90Error(ValueError):
@@ -138,8 +152,49 @@ def build_preregistration(source_root: str | Path) -> dict[str, Any]:
     }
 
 
+def build_waveform_preregistration(source_root: str | Path) -> dict[str, Any]:
+    """Freeze a new hypothesis; it does not alter the metadata-only plan."""
+    payload = build_preregistration(source_root)
+    payload["version"] = WAVEFORM_PREREG_VERSION
+    payload["task"] = {
+        "name": "classify_sc_type_from_waveforms",
+        "label": "sc_type",
+        "classes": [0, 1, 2, 3],
+        "features": WAVEFORM_FEATURES,
+        "model": "train-standardized_nearest_centroid_multiclass",
+    }
+    payload["holdout_policy"] = (
+        "Holdout waveform files must not be opened by feature development, fitting, "
+        "model selection, calibration, or reporting before a separate authorized evaluation."
+    )
+    payload["scope"] = (
+        "Research baseline from EMT waveforms only. It is neither a protection relay "
+        "nor a TIMDR B4 result; reported calibration is not a holdout estimate."
+    )
+    payload["technical_schema_inspection"] = {
+        "occurred_before_preregistration": True,
+        "episode_id": 4,
+        "split": "train",
+        "observed": ["table shape", "column names", "time range"],
+        "not_observed": ["waveform amplitudes", "class-wise results", "calibration or holdout data"],
+        "effect_on_plan": "Confirmed a fixed eight-location schema; no data-derived threshold or model selection was performed.",
+    }
+    return payload
+
+
 def write_preregistration(source_root: str | Path, output_path: str | Path) -> dict[str, Any]:
     payload = build_preregistration(source_root)
+    target = Path(output_path)
+    serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    if target.exists() and target.read_text(encoding="utf-8") != serialized:
+        raise Protect90Error(f"Refusing to overwrite a different frozen preregistration: {target}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(serialized, encoding="utf-8")
+    return payload
+
+
+def write_waveform_preregistration(source_root: str | Path, output_path: str | Path) -> dict[str, Any]:
+    payload = build_waveform_preregistration(source_root)
     target = Path(output_path)
     serialized = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     if target.exists() and target.read_text(encoding="utf-8") != serialized:
