@@ -1,0 +1,17 @@
+{
+  "protocol_version": "timdr-ai-core/1",
+  "criteria": {
+    "alpha": 0.05,
+    "min_abs_effect_size": 0.3
+  },
+  "required_controls": [
+    "positive_control",
+    "negative_control"
+  ],
+  "status_contract": {
+    "SUPPORTED": "Both controls passed and pre-registered evidence meets all criteria.",
+    "NOT_SUPPORTED": "Both controls passed, but pre-registered evidence does not meet all criteria.",
+    "INCONCLUSIVE": "Controls, reproducible evidence, or an interpretable test are missing."
+  },
+  "ai_role": "epistemic_filter_not_proof_or_empirical_authority"
+}
