@@ -62,7 +62,9 @@ ustanowić dowodu ani wyniku empirycznego.
 `timdr_operators.py` dostarcza gotowe, wiernie przeniesione (1:1, z podanym
 źródłem) funkcje do wpięcia w `LayerTTopology`/`LayerMModal` przez ich
 argument `transform=` — same warstwy w `timdr_ai_core.py` zostają domyślnie
-identycznością, tak jak wcześniej:
+identycznością, tak jak wcześniej. `FundamentalModelLTR` przekazuje T i M
+równolegle to samo surowe wejście (patrz niżej), więc oba operatory można
+wpiąć naraz na tym samym oknie:
 
 - `fft_dominant_mode(window, fs)` — ekstrakcja dominującego trybu (f, phi, A)
   z okna, port z `TIMDR-Modal-Formalism/timdr_modal/real_data_validation.py`;
@@ -89,21 +91,23 @@ from timdr_operators import fft_dominant_mode
 layer = LayerMModal(transform=lambda w: fft_dominant_mode(w, fs=500.0))
 ```
 
-**Znane, uczciwie udokumentowane ograniczenie architektury:** `FundamentalModelLTR.forward()`
-to sekwencyjny potok jednoargumentowy (T→I→M→It→R→E). T (topologia) i M
-(mody) chcą jednak czytać to samo surowe okno wejściowe — są niezależnymi
-ekstraktorami cech nad jednym wejściem, a nie kolejnymi etapami jednej
-transformacji. Naiwne wpięcie obu naraz w istniejący łańcuch (`topology=...,
-modal=...`) powoduje, że M dostaje na wejściu krotkę `(winding, crossing)`
-zamiast surowego okna i głośno się wywala (`TimdrOperatorsError`), zamiast
-zwrócić po cichu zły wynik. To poprawne zachowanie — patrz
-`tests/test_fundamental_model_ltr_chain_cannot_naively_combine_t_and_m`.
-Naprawa wymaga przyszłego przeprojektowania `FundamentalModelLTR` (np.
-`forward()` przekazujące surowe wejście do każdej warstwy osobno, z `E`
-łączącym ich wyjścia), nie należy do tego modułu operatorów. Każdy operator
-działa poprawnie wpięty samodzielnie w swoją warstwę — problem dotyczy
-wyłącznie łączenia dwóch niezależnych warstw przez obecny sekwencyjny
-łańcuch.
+**Naprawione ograniczenie architektury (2026-09-19):** `FundamentalModelLTR.forward()`
+był pierwotnie sekwencyjnym potokiem jednoargumentowym (T→I→M→It→R→E), w
+którym T i M nie mogły oba czytać tego samego surowego okna — wyjście
+pierwszego stawało się (zniekształconym) wejściem drugiego i głośno się
+wywalało (`TimdrOperatorsError`). Na propozycję użytkownika przeprojektowano
+przepływ danych: **T i M czytają teraz surowe wejście równolegle i
+bezpośrednio**, `I` scala ich dwie reprezentacje (`transform` dostaje jeden
+słownik `{"T":..,"M":..}`), `It`/`R` przetwarzają dalej sekwencyjnie, a `E`
+na końcu łączy T/M/R (`transform` dostaje `{"T":..,"M":..,"R":..}`).
+`forward()` zwraca teraz pełny słownik stanu wszystkich warstw
+(`{"T","M","I","It","R","E"}`), nie tylko wyjście `E` — świadoma, udokumentowana
+zmiana kształtu wobec v1. Dowód naprawy:
+`tests/test_timdr_operators.py::test_fundamental_model_ltr_can_now_combine_t_and_m_on_the_same_raw_window`
+(oba operatory na tym samym realnym oknie w jednym wywołaniu). Realny model
+domyślny (same warstwy identycznościowe) już NIE zwraca surowego wejścia
+bez zmian — zwraca `{"T": raw, "M": raw, "R": raw}` opakowane przez
+domyślną identyczność `E`; to celowy, udokumentowany kompromis tej naprawy.
 
 **Drugie ograniczenie, znalezione empirycznie na realnych danych (nie na
 syntetykach z testów jednostkowych):** `crossing_number` w wersji

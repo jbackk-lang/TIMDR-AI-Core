@@ -184,7 +184,23 @@ class LayerTTopology(_TransformLayer):
 
 
 class LayerIInformation(_TransformLayer):
-    pass
+    """Fuses the topology and modal representations of the SAME raw window.
+
+    ``forward`` takes both representations directly (not chained through one
+    another) and hands ``transform`` a single dict argument ``{"T": ..,
+    "M": ..}`` -- so a custom ``transform`` is still a plain one-argument
+    callable, only its argument is now the pair, not a single upstream value.
+
+    This replaces the earlier v1 shape, where T's output became I's input and
+    M ran downstream of I in a single sequential chain -- which meant T and M
+    could never both read the original raw window (see
+    ``tests/test_timdr_operators.py::test_fundamental_model_ltr_can_now_combine_t_and_m_on_the_same_raw_window``
+    for the concrete case this was blocking: winding/crossing (T) and
+    fft_dominant_mode (M) both needing the same raw vibration window).
+    """
+
+    def forward(self, topo_repr: Any, modal_repr: Any) -> Any:  # type: ignore[override]
+        return self.transform({"T": topo_repr, "M": modal_repr})
 
 
 class LayerMModal(_TransformLayer):
@@ -202,11 +218,41 @@ class LayerRResonance(_TransformLayer):
 
 
 class LayerEEmergence(_TransformLayer):
-    pass
+    """Combines topology, modal, and resonance representations of one run.
+
+    Same pattern as ``LayerIInformation``: ``forward`` takes all three
+    representations directly and hands ``transform`` one dict argument
+    ``{"T": .., "M": .., "R": ..}``.
+    """
+
+    def forward(self, topo_repr: Any, modal_repr: Any, resonant_repr: Any) -> Any:  # type: ignore[override]
+        return self.transform({"T": topo_repr, "M": modal_repr, "R": resonant_repr})
 
 
 class FundamentalModelLTR:
-    """Composable Λ–τ–ρ pipeline; it supplies representations, not truth claims."""
+    """Composable Λ–τ–ρ pipeline; it supplies representations, not truth claims.
+
+    Data flow (fixed 2026-09-19, see README "Operatory T/M/R" section):
+    T (topology) and M (modal) both read the RAW input directly and in
+    parallel -- they are independent feature extractors over one window, not
+    stages of one sequential transformation. I (information) fuses their two
+    representations. It (temporal) and R (resonance) then refine that fused
+    representation in sequence. E (emergence) finally combines T, M, and R.
+
+    This replaces the earlier v1 chain (T->I->M->It->R->E, one value handed
+    straight through each layer), which could not wire two independent
+    feature extractors into T and M at the same time -- the first one's
+    output silently became the second one's (malformed) input. That gap is
+    documented and closed in
+    ``tests/test_timdr_operators.py::test_fundamental_model_ltr_can_now_combine_t_and_m_on_the_same_raw_window``.
+
+    Behavioral note for existing callers: because ``LayerEEmergence``'s
+    default ``transform`` is still identity, an all-default model's
+    ``forward`` no longer returns the raw input unchanged -- it returns the
+    full per-layer state dict below (with T/M/R all equal to the raw input
+    under all-default layers). This is an intentional, documented departure
+    from v1's silent pass-through default.
+    """
 
     def __init__(
         self,
@@ -224,8 +270,21 @@ class FundamentalModelLTR:
         self.R = resonance or LayerRResonance()
         self.E = emergence or LayerEEmergence()
 
-    def forward(self, value: Any) -> Any:
-        return self.E.forward(self.R.forward(self.It.forward(self.M.forward(self.I.forward(self.T.forward(value))))))
+    def forward(self, value: Any) -> dict[str, Any]:
+        topo_repr = self.T.forward(value)
+        modal_repr = self.M.forward(value)
+        info_repr = self.I.forward(topo_repr, modal_repr)
+        temporal_repr = self.It.forward(info_repr)
+        resonant_repr = self.R.forward(temporal_repr)
+        emergent = self.E.forward(topo_repr, modal_repr, resonant_repr)
+        return {
+            "T": topo_repr,
+            "M": modal_repr,
+            "I": info_repr,
+            "It": temporal_repr,
+            "R": resonant_repr,
+            "E": emergent,
+        }
 
 
 class TIMDR_AI_System:

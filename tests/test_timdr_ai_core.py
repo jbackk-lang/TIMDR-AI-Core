@@ -2,7 +2,9 @@ from timdr_ai_core import (
     ControlResult,
     FundamentalModelLTR,
     Hypothesis,
+    LayerEEmergence,
     LayerIInformation,
+    LayerMModal,
     LayerTTopology,
     ProtocolCriteria,
     TestEvidence,
@@ -53,12 +55,53 @@ def test_supported_requires_passed_controls_significance_and_effect_size():
 
 
 def test_ltr_pipeline_is_composable_and_does_not_set_the_verdict():
+    # T and M both read the raw value directly now (see FundamentalModelLTR's
+    # docstring) -- I's transform receives the {"T":.., "M":..} pair, not a
+    # single chained-through value.
     model = FundamentalModelLTR(
         topology=LayerTTopology(lambda value: value + 2),
-        information=LayerIInformation(lambda value: value * 3),
+        information=LayerIInformation(lambda both: both["T"] * 3),
     )
     system = TIMDR_AI_System(model=model)
     result = system.run(4, {"name": "h", "params": {}})
 
-    assert result["model_output"] == 18
+    assert result["model_output"]["I"] == 18
     assert result["test_result"].verdict == "INCONCLUSIVE"
+
+
+def test_t_and_m_both_read_the_raw_input_directly_and_in_parallel():
+    """The fix for the architectural limitation found while wiring real
+    operators in: T and M must both see the ORIGINAL raw input, not one
+    seeing the other's output."""
+    model = FundamentalModelLTR(
+        topology=LayerTTopology(lambda raw: raw + "-topology"),
+        modal=LayerMModal(transform=lambda raw: raw + "-modal"),
+    )
+    result = model.forward("window")
+
+    assert result["T"] == "window-topology"
+    assert result["M"] == "window-modal"
+
+
+def test_information_layer_receives_both_topology_and_modal_representations():
+    model = FundamentalModelLTR(
+        topology=LayerTTopology(lambda raw: raw * 2),
+        modal=LayerMModal(transform=lambda raw: raw * 10),
+        information=LayerIInformation(lambda both: both),
+    )
+    result = model.forward(3)
+
+    assert result["I"] == {"T": 6, "M": 30}
+
+
+def test_emergence_layer_receives_topology_modal_and_resonance():
+    model = FundamentalModelLTR(
+        topology=LayerTTopology(lambda raw: raw + 1),
+        modal=LayerMModal(transform=lambda raw: raw + 2),
+        emergence=LayerEEmergence(lambda combined: combined),
+    )
+    result = model.forward(10)
+
+    # It and R default to identity, so R's input/output is I's default-identity
+    # output, which is {"T": 11, "M": 12} (I's own default transform).
+    assert result["E"] == {"T": 11, "M": 12, "R": {"T": 11, "M": 12}}

@@ -91,24 +91,20 @@ def test_layer_t_topology_wired_with_winding_and_crossing():
     assert crossing >= 0.0
 
 
-def test_fundamental_model_ltr_chain_cannot_naively_combine_t_and_m():
-    """Documents a real architectural limitation found while wiring this in,
-    rather than hiding it: FundamentalModelLTR.forward() is a SEQUENTIAL
-    single-argument pipe (T's output becomes I's input becomes M's input,
-    etc.). T (topology) and M (modal) both want to read the *same raw
-    window* -- they are independent feature extractors over one input, not
-    stages of one transformation. Wiring both into the existing chain the
-    naive way (topology=..., modal=...) makes M receive T's
-    (winding, crossing) 2-tuple instead of the raw window, which is too
-    short for an FFT and fails loudly (TimdrOperatorsError), not silently.
+def test_fundamental_model_ltr_can_now_combine_t_and_m_on_the_same_raw_window():
+    """Regression test for a real architectural limitation found while
+    wiring these operators in (2026-09-19): the original FundamentalModelLTR
+    was a SEQUENTIAL single-argument pipe (T's output became I's input became
+    M's input, etc.), so T (topology) and M (modal) -- independent feature
+    extractors that both need the *same raw window* -- could not be wired in
+    together; M would receive T's (winding, crossing) tuple instead of the
+    raw window and fail with TimdrOperatorsError.
 
-    That loud failure is the correct behavior of fft_dominant_mode given a
-    malformed input -- the fix belongs in a future FundamentalModelLTR
-    redesign (e.g. forward() giving each layer the raw input directly and
-    letting E combine their outputs), not in this operators module. Each
-    operator DOES work correctly when wired into its own layer alone (see
-    the two tests above) -- only combining two independent-input layers via
-    the current sequential chain does not."""
+    FundamentalModelLTR was redesigned so T and M both read the raw input
+    directly and in parallel (see its docstring in timdr_ai_core.py). This
+    test proves the fix: both operators now run successfully on the SAME raw
+    window in one model.forward() call, each producing its own correct,
+    independently-verifiable representation."""
     fs = 500.0
     n = 500
     window = [math.sin(2 * math.pi * 40.0 * i / fs) for i in range(n)]
@@ -117,5 +113,14 @@ def test_fundamental_model_ltr_chain_cannot_naively_combine_t_and_m():
         topology=LayerTTopology(transform=lambda w: (winding_number(w), crossing_number(w))),
         modal=LayerMModal(transform=lambda w: fft_dominant_mode(w, fs=fs)),
     )
-    with pytest.raises(TimdrOperatorsError):
-        model.forward(window)
+    result = model.forward(window)
+
+    winding, crossing = result["T"]
+    f_est, phi_est, a_est = result["M"]
+    assert winding > 0.5
+    assert crossing >= 0.0
+    assert abs(f_est - 40.0) < 1e-6
+    # I/It/R default to identity, so E (also default identity) combines the
+    # SAME T/M representations checked above, plus R's pass-through of them.
+    assert result["E"]["T"] == result["T"]
+    assert result["E"]["M"] == result["M"]
