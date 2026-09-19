@@ -1,0 +1,15 @@
+{
+  "schema": "timdr-b4-kitchen-learning/1",
+  "learning_authorized": false,
+  "new_preregistration_fingerprint": "REQUIRED_BEFORE_FILLING",
+  "source_evaluation_prereg": "must_not_be_B4_KITCHEN_v0.3",
+  "dataset_id": "CMU_KITCHEN_S13_BROWNIE_v0.1",
+  "samples": [
+    {
+      "block_id": 0,
+      "features": ["REPLACE_WITH_PREDECLARED_FEATURES"],
+      "label": 0,
+      "split": "train"
+    }
+  ]
+}

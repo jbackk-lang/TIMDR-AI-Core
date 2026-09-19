@@ -28,6 +28,10 @@ echo Uzywam: %PY%
 
 if /I "%~1"=="--tests" goto :install_dev
 if /I "%~1"=="--graph" goto :build_graph
+if /I "%~1"=="--learn" goto :learning_demo
+if /I "%~1"=="--b4-boundary" goto :b4_boundary
+if /I "%~1"=="--protect90-freeze" goto :protect90_freeze
+if /I "%~1"=="--protect90" goto :protect90_train
 
 echo.
 echo Uruchamiam szybkie demo protokolu.
@@ -43,6 +47,43 @@ echo Buduje graf pochodzenia B4-Kitchen v0.3...
 %PY% examples\build_b4_kitchen_graph.py
 pause
 exit /b %ERRORLEVEL%
+
+:learning_demo
+echo.
+echo Uruchamiam sandbox uczenia bez dostepu do holdout...
+%PY% examples\learning_demo.py
+pause
+exit /b %ERRORLEVEL%
+
+:b4_boundary
+echo.
+echo Sprawdzam granice uczenia B4-Kitchen...
+%PY% examples\inspect_b4_kitchen_learning_boundary.py
+pause
+exit /b %ERRORLEVEL%
+
+:protect90_freeze
+if "%~2"=="" goto :protect90_usage
+echo.
+echo Zamrazam prerejestracje PROTECT-90 przed pierwszym uczeniem...
+%PY% examples\create_protect90_prereg.py "%~2"
+pause
+exit /b %ERRORLEVEL%
+
+:protect90_train
+if "%~2"=="" goto :protect90_usage
+echo.
+echo Uruchamiam wylacznie train/calibration zamrozonego planu PROTECT-90...
+%PY% examples\train_protect90_multiclass.py "%~2"
+pause
+exit /b %ERRORLEVEL%
+
+:protect90_usage
+echo Uzycie:
+echo   run.bat --protect90-freeze "C:\sciezka\TIMDR-Grid-Monitor"
+echo   run.bat --protect90 "C:\sciezka\TIMDR-Grid-Monitor"
+pause
+exit /b 2
 
 :install_dev
 %PY% -c "import pytest" >nul 2>&1
