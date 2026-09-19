@@ -57,13 +57,98 @@ prerejestrowanego testu i kontroli dostarczonych przez uruchomienie domenowe.
 Warstwy AI/LTR mogą przetwarzać reprezentacje, lecz nie mogą samodzielnie
 ustanowić dowodu ani wyniku empirycznego.
 
-## Lekki lokalnie, otwarty na źródła zewnętrzne
+## Operatory T/M/R: realna matematyka wpięta w warstwy LTR
 
-Domyślnie środowisko wykonuje jeden proces naraz, nie zapisuje kopii przebiegów
-i odrzuca epizody większe niż 8 MB. Materiał z internetu może zostać pobrany
-wyłącznie na jawne polecenie, przez HTTPS, z wcześniej podaną sumą SHA-256 i
-limitem 25 MB. Nie ma automatycznego crawlowania, wysyłania danych, wykonywania
-obcego kodu ani samoczynnego uczenia się na pobranych plikach.
+`timdr_operators.py` dostarcza gotowe, wiernie przeniesione (1:1, z podanym
+źródłem) funkcje do wpięcia w `LayerTTopology`/`LayerMModal` przez ich
+argument `transform=` — same warstwy w `timdr_ai_core.py` zostają domyślnie
+identycznością, tak jak wcześniej:
+
+- `fft_dominant_mode(window, fs)` — ekstrakcja dominującego trybu (f, phi, A)
+  z okna, port z `TIMDR-Modal-Formalism/timdr_modal/real_data_validation.py`;
+- `winding_number`/`crossing_number` — niezmienniki topologiczne krzywej
+  osadzonej z opóźnieniem, port z
+  `GIA-TIMDR/core/winding_crossing_ms_bridge.py` (uczciwy zakres przeniesiony
+  z repo źródłowego: odrzucone na danych syntetycznych, silny-lecz-częściowy
+  sygnał na realnych łożyskach CWRU, niespójny na sejsmice/BTC — diagnostyczne,
+  nie selekcyjne);
+- `Modality`/`is_resonant` — Aksjomat 5 gałęzi K, port z
+  `TIMDR-Modal-Formalism/timdr_modal/phase_sync.py` (bez numpy).
+
+```powershell
+.venv\Scripts\python.exe -m pip install -e ".[operators]"
+python -m pytest -q tests/test_timdr_operators.py
+```
+
+Przykład wpięcia jednej warstwy:
+
+```python
+from timdr_ai_core import LayerMModal
+from timdr_operators import fft_dominant_mode
+
+layer = LayerMModal(transform=lambda w: fft_dominant_mode(w, fs=500.0))
+```
+
+**Znane, uczciwie udokumentowane ograniczenie architektury:** `FundamentalModelLTR.forward()`
+to sekwencyjny potok jednoargumentowy (T→I→M→It→R→E). T (topologia) i M
+(mody) chcą jednak czytać to samo surowe okno wejściowe — są niezależnymi
+ekstraktorami cech nad jednym wejściem, a nie kolejnymi etapami jednej
+transformacji. Naiwne wpięcie obu naraz w istniejący łańcuch (`topology=...,
+modal=...`) powoduje, że M dostaje na wejściu krotkę `(winding, crossing)`
+zamiast surowego okna i głośno się wywala (`TimdrOperatorsError`), zamiast
+zwrócić po cichu zły wynik. To poprawne zachowanie — patrz
+`tests/test_fundamental_model_ltr_chain_cannot_naively_combine_t_and_m`.
+Naprawa wymaga przyszłego przeprojektowania `FundamentalModelLTR` (np.
+`forward()` przekazujące surowe wejście do każdej warstwy osobno, z `E`
+łączącym ich wyjścia), nie należy do tego modułu operatorów. Każdy operator
+działa poprawnie wpięty samodzielnie w swoją warstwę — problem dotyczy
+wyłącznie łączenia dwóch niezależnych warstw przez obecny sekwencyjny
+łańcuch.
+
+## Lekki lokalnie, uczący się z sieci
+
+Lokalny komputer ma wykonywać mało pracy: jeden proces naraz, bez kopii
+przebiegów i z limitem 8 MB na epizod. Rozwój źródłowy może zachodzić
+automatycznie w sieci: środowisko cyklicznie pobiera nowe dokumenty z
+zadeklarowanych katalogów HTTPS i aktualizuje lokalny graf pochodzenia oraz
+słownik pojęć. Jeden cykl jest ograniczony do 16 dokumentów po 2 MB.
+
+Automatyczne uczenie sieciowe nie pobiera ani nie uruchamia obcego kodu, nie
+wysyła danych lokalnych, nie modyfikuje prerejestracji i nie ustanawia wyniku
+TIMDR. Aktualizuje wyłącznie model-kandydata wiedzy o źródłach.
+
+Skopiuj `online_catalogs.template.json`, wpisz katalogi zwracające JSON w
+formacie `items: [{id, url, title}]`, a następnie uruchom cykl:
+
+```powershell
+.\run.bat --online-learn "online_catalogs.json"
+```
+
+Stan uczenia zapisuje się w ignorowanym przez Git `external_cache/`.
+
+Można też uszeregować zebrane dokumenty jako kandydatów czterech niezależnych
+gałęzi TIMDR — M/S, G, K i META-DYNAMICS. Ranking jest wyłącznie trasowaniem
+źródeł po słowach kluczowych; nie tworzy mostu między gałęziami i nie stanowi
+wyniku badawczego:
+
+```powershell
+.\run.bat --online-rank
+```
+
+Po rankingu można zbudować kolejkę badawczą. Każde źródło trafia dokładnie do
+jednej najlepiej pasującej gałęzi i otrzymuje listę brakujących artefaktów;
+żadne źródło nie staje się przez to automatycznie datasetem, hipotezą ani
+mostem między gałęziami.
+
+```powershell
+.\run.bat --research-queue
+```
+
+### Pobranie zamrożonego artefaktu
+
+Niezależnie od automatycznego uczenia można pobrać konkretny artefakt danych,
+gdy jego SHA-256 jest znane z góry. Służy do tego
+`external_sources.template.json`.
 
 Szablon [external_sources.template.json](external_sources.template.json)
 jest miejscem na deklarację źródła. Po uzupełnieniu można pobrać jedną pozycję:
@@ -74,3 +159,31 @@ jest miejscem na deklarację źródła. Po uzupełnieniu można pobrać jedną p
 
 Plik trafi do lokalnego, ignorowanego przez Git `external_cache/`. Dopiero nowa
 prerejestracja może nadać mu status danych do analizy lub uczenia.
+
+## Paderborn: zewnętrzna replikacja M/S
+
+Pobrany minimalny kandydat Paderborn zawiera trzy klasy: zdrowe `K001`,
+sztuczne EDM uszkodzenie pierścienia zewnętrznego `KA01` oraz pierścienia
+wewnętrznego `KI01`. Archiwa surowych danych są ignorowane przez Git.
+
+Zamrożenie selekcji nie czyta wartości sygnału — używa wyłącznie nazw plików
+MATLAB w archiwach i tworzy podział 144 / 48 / 48:
+
+```powershell
+.\run.bat --paderborn-freeze
+```
+
+Przed ekstrakcją przebiegów potrzebna jest osobna prerejestracja hipotezy M/S.
+
+Taka prerejestracja została zapisana jako `PADERBORN_MS_HYPOTHESIS_v0.1`.
+Definiuje kanał `vibration_1`, cztery jednosekundowe okna na pomiar, cztery
+cechy M/S, kontrolę dodatnią i ujemną oraz jednorazową ocenę holdoutu. Przed
+implementacją ekstraktora nie należy otwierać payloadów MATLAB z holdoutu.
+
+Ekstraktor Paderborn otwiera wyłącznie zamrożone pliki treningowe i
+kalibracyjne, a żądanie holdoutu odrzuca przed otwarciem archiwum. Techniczny
+odczyt jednego pliku treningowego:
+
+```powershell
+.\run.bat --paderborn-schema
+```

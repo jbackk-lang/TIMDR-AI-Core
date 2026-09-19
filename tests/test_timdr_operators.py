@@ -1,0 +1,107 @@
+"""Plumbing tests: confirm the ported operators work and wire into the
+existing LTR layer classes -- not a re-validation of their discriminative
+power, which lives in the source repos (see timdr_operators.py docstrings)."""
+from __future__ import annotations
+
+import math
+
+import pytest
+
+from timdr_ai_core import FundamentalModelLTR, LayerMModal, LayerTTopology
+from timdr_operators import (
+    Modality,
+    TimdrOperatorsError,
+    crossing_number,
+    fft_dominant_mode,
+    is_resonant,
+    winding_number,
+)
+
+numpy = pytest.importorskip("numpy")
+
+
+def test_is_resonant_needs_no_numpy_and_is_strict():
+    a = Modality(f=10.0, phi=0.0, A=1.0)
+    b = Modality(f=10.0, phi=0.0, A=99.0)  # amplitude is irrelevant to Axiom 5
+    assert is_resonant(a, b, eps_f=1e-6, eps_phi=1e-6)
+    c = Modality(f=10.0 + 2e-6, phi=0.0, A=1.0)  # clearly past eps_f: not resonant
+    assert not is_resonant(a, c, eps_f=1e-6, eps_phi=1e-6)
+
+
+def test_fft_dominant_mode_recovers_known_sine():
+    fs = 1000.0
+    n = 1000
+    f_true, phi_true, a_true = 25.0, 0.7, 2.0
+    t = [i / fs for i in range(n)]
+    window = [a_true * math.sin(2 * math.pi * f_true * ti + phi_true) for ti in t]
+    f_est, phi_est, a_est = fft_dominant_mode(window, fs)
+    assert abs(f_est - f_true) < 1e-6
+    assert abs(a_est - a_true) < 1e-6
+    assert abs(((phi_est - phi_true + math.pi) % (2 * math.pi)) - math.pi) < 1e-3
+
+
+def test_fft_dominant_mode_rejects_short_window():
+    with pytest.raises(TimdrOperatorsError):
+        fft_dominant_mode([1.0, 2.0], fs=100.0)
+
+
+def test_winding_number_nonzero_on_a_closed_loop_and_zero_on_flat_signal():
+    n = 400
+    loop = [math.sin(2 * math.pi * i / n) + 0.001 * math.sin(2 * math.pi * 3 * i / n) for i in range(n)]
+    assert winding_number(loop) > 0.5
+    flat = [0.0] * 50
+    assert winding_number(flat) == 0.0  # zero-std guard, not a crash
+
+
+def test_crossing_number_runs_and_is_nonnegative():
+    n = 300
+    signal = [math.sin(2 * math.pi * 5 * i / n) + 0.3 * math.sin(2 * math.pi * 17 * i / n) for i in range(n)]
+    assert crossing_number(signal) >= 0.0
+
+
+def test_layer_m_modal_wired_with_fft_dominant_mode():
+    fs = 500.0
+    n = 500
+    window = [math.sin(2 * math.pi * 40.0 * i / fs) for i in range(n)]
+    layer = LayerMModal(transform=lambda w: fft_dominant_mode(w, fs=fs))
+    f_est, phi_est, a_est = layer.forward(window)
+    assert abs(f_est - 40.0) < 1e-6
+
+
+def test_layer_t_topology_wired_with_winding_and_crossing():
+    n = 400
+    loop = [math.sin(2 * math.pi * i / n) for i in range(n)]
+    layer = LayerTTopology(transform=lambda w: (winding_number(w), crossing_number(w)))
+    winding, crossing = layer.forward(loop)
+    assert winding > 0.5
+    assert crossing >= 0.0
+
+
+def test_fundamental_model_ltr_chain_cannot_naively_combine_t_and_m():
+    """Documents a real architectural limitation found while wiring this in,
+    rather than hiding it: FundamentalModelLTR.forward() is a SEQUENTIAL
+    single-argument pipe (T's output becomes I's input becomes M's input,
+    etc.). T (topology) and M (modal) both want to read the *same raw
+    window* -- they are independent feature extractors over one input, not
+    stages of one transformation. Wiring both into the existing chain the
+    naive way (topology=..., modal=...) makes M receive T's
+    (winding, crossing) 2-tuple instead of the raw window, which is too
+    short for an FFT and fails loudly (TimdrOperatorsError), not silently.
+
+    That loud failure is the correct behavior of fft_dominant_mode given a
+    malformed input -- the fix belongs in a future FundamentalModelLTR
+    redesign (e.g. forward() giving each layer the raw input directly and
+    letting E combine their outputs), not in this operators module. Each
+    operator DOES work correctly when wired into its own layer alone (see
+    the two tests above) -- only combining two independent-input layers via
+    the current sequential chain does not."""
+    fs = 500.0
+    n = 500
+    window = [math.sin(2 * math.pi * 40.0 * i / fs) for i in range(n)]
+
+    model = FundamentalModelLTR(
+        topology=LayerTTopology(transform=lambda w: (winding_number(w), crossing_number(w))),
+        modal=LayerMModal(transform=lambda w: fft_dominant_mode(w, fs=fs)),
+    )
+    with pytest.raises(TimdrOperatorsError):
+        model.forward(window)

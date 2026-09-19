@@ -15,9 +15,12 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["pytest>=7"]
 waveform = ["numpy>=1.24", "pandas>=2.0"]
+paderborn = ["rarfile>=4.5"]
+paderborn-analysis = ["rarfile>=4.5", "numpy>=1.24", "scipy>=1.10"]
+operators = ["numpy>=1.24"]
 
 [tool.setuptools]
-py-modules = ["timdr_ai_core", "learning_sandbox", "protect90_learning_adapter", "protect90_waveform_learning"]
+py-modules = ["timdr_ai_core", "timdr_operators", "learning_sandbox", "protect90_learning_adapter", "protect90_waveform_learning", "environment_policy", "online_learning", "online_ranker", "research_queue", "paderborn_prereg", "paderborn_extractor"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
