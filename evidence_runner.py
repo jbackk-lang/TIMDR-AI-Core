@@ -50,9 +50,16 @@ def import_b4_kitchen_v03(result_path: Path, prereg_path: Path, manifest_path: P
 
     controls = result["controls"]
     main = result["main_test"]
-    pvalue, alpha = float(main["pvalue"]), float(result["alpha"])
-    positive_ok = float(controls["positive"]["pvalue"]) < alpha
-    negative_ok = float(controls["negative"]["pvalue"]) >= alpha
+    try:
+        pvalue, alpha = float(main["pvalue"]), float(result["alpha"])
+        positive_ok = float(controls["positive"]["pvalue"]) < alpha
+        negative_ok = float(controls["negative"]["pvalue"]) >= alpha
+    except (KeyError, TypeError, ValueError) as exc:
+        raise EvidenceError(
+            "Result artifact's controls/main_test are malformed: expected "
+            "controls.positive.pvalue, controls.negative.pvalue, main_test.pvalue, "
+            f"and alpha to be present and numeric ({exc})."
+        ) from exc
     passed = positive_ok and negative_ok
     if bool(controls.get("passed")) != passed:
         raise EvidenceError("Declared control gate is inconsistent with individual control p-values.")

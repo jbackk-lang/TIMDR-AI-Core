@@ -12,7 +12,7 @@ def test_b4_import_checks_declared_verdict_and_is_immutable(tmp_path):
     result = tmp_path / "result.json"
     manifest = tmp_path / "manifest.json"
     prereg = tmp_path / "prereg.md"
-    _write(result, {"dataset_id":"d", "prereg_version":"B4_KITCHEN_v0.3", "method":"m", "verdict":"SUPPORTED", "controls":{"passed":True}, "main_test":{"pvalue":0.01,"rho":0.2}, "alpha":0.05})
+    _write(result, {"dataset_id":"d", "prereg_version":"B4_KITCHEN_v0.3", "method":"m", "verdict":"SUPPORTED", "controls":{"positive":{"pvalue":0.0001}, "negative":{"pvalue":0.9}, "passed":True}, "main_test":{"pvalue":0.01,"rho":0.2}, "alpha":0.05})
     _write(manifest, {"dataset_id":"d"})
     prereg.write_text("# B4-Kitchen v0.3", encoding="utf-8")
     report = import_b4_kitchen_v03(result, prereg, manifest)
@@ -27,3 +27,20 @@ def test_b4_import_checks_declared_verdict_and_is_immutable(tmp_path):
         pass
     else:
         raise AssertionError("Expected immutable report protection")
+
+
+def test_b4_import_rejects_malformed_controls_cleanly(tmp_path):
+    """A result artifact missing controls.positive/negative must raise EvidenceError,
+    not an unhandled KeyError -- the module's own contract is to fail loud and clear."""
+    result = tmp_path / "result.json"
+    manifest = tmp_path / "manifest.json"
+    prereg = tmp_path / "prereg.md"
+    _write(result, {"dataset_id":"d", "prereg_version":"B4_KITCHEN_v0.3", "method":"m", "verdict":"SUPPORTED", "controls":{"passed":True}, "main_test":{"pvalue":0.01,"rho":0.2}, "alpha":0.05})
+    _write(manifest, {"dataset_id":"d"})
+    prereg.write_text("# B4-Kitchen v0.3", encoding="utf-8")
+    try:
+        import_b4_kitchen_v03(result, prereg, manifest)
+    except EvidenceError:
+        pass
+    else:
+        raise AssertionError("Expected EvidenceError for malformed controls, not a silent pass")
