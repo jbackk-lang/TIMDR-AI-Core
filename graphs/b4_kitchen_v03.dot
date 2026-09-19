@@ -1,0 +1,19 @@
+digraph TIMDR_Provenance {
+  rankdir=LR;
+  "dataset:6a438471e96f9ba3" [label="dataset: CMU_KITCHEN_S13_BROWNIE_v0.1"];
+  "raw-hashes:bd9debcc946555ed" [label="raw_hashes: declared raw-file hashes"];
+  "prereg:23cab477c0a9b4a5" [label="preregistration: frozen preregistration"];
+  "manifest:e3c70538f03a3598" [label="manifest: dataset manifest"];
+  "result:83875d6c0ff51cca" [label="source_result: source result artifact"];
+  "controls:83875d6c0ff51cca" [label="controls: positive and negative controls"];
+  "test:83875d6c0ff51cca" [label="test: ar1_n_eff_adjusted_spearman"];
+  "report:0934f0916083d7c4" [label="evidence_report: SUPPORTED"];
+  "raw-hashes:bd9debcc946555ed" -> "dataset:6a438471e96f9ba3" [label="identifies"];
+  "dataset:6a438471e96f9ba3" -> "manifest:e3c70538f03a3598" [label="described_by"];
+  "prereg:23cab477c0a9b4a5" -> "report:0934f0916083d7c4" [label="governs"];
+  "manifest:e3c70538f03a3598" -> "report:0934f0916083d7c4" [label="freezes_data"];
+  "result:83875d6c0ff51cca" -> "controls:83875d6c0ff51cca" [label="contains"];
+  "result:83875d6c0ff51cca" -> "test:83875d6c0ff51cca" [label="contains"];
+  "controls:83875d6c0ff51cca" -> "report:0934f0916083d7c4" [label="gates"];
+  "test:83875d6c0ff51cca" -> "report:0934f0916083d7c4" [label="evidence_for"];
+}

@@ -1,0 +1,95 @@
+{
+  "edges": [
+    {
+      "relation": "identifies",
+      "source": "raw-hashes:bd9debcc946555ed",
+      "target": "dataset:6a438471e96f9ba3"
+    },
+    {
+      "relation": "described_by",
+      "source": "dataset:6a438471e96f9ba3",
+      "target": "manifest:e3c70538f03a3598"
+    },
+    {
+      "relation": "governs",
+      "source": "prereg:23cab477c0a9b4a5",
+      "target": "report:0934f0916083d7c4"
+    },
+    {
+      "relation": "freezes_data",
+      "source": "manifest:e3c70538f03a3598",
+      "target": "report:0934f0916083d7c4"
+    },
+    {
+      "relation": "contains",
+      "source": "result:83875d6c0ff51cca",
+      "target": "controls:83875d6c0ff51cca"
+    },
+    {
+      "relation": "contains",
+      "source": "result:83875d6c0ff51cca",
+      "target": "test:83875d6c0ff51cca"
+    },
+    {
+      "relation": "gates",
+      "source": "controls:83875d6c0ff51cca",
+      "target": "report:0934f0916083d7c4"
+    },
+    {
+      "relation": "evidence_for",
+      "source": "test:83875d6c0ff51cca",
+      "target": "report:0934f0916083d7c4"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dataset:6a438471e96f9ba3",
+      "kind": "dataset",
+      "label": "CMU_KITCHEN_S13_BROWNIE_v0.1",
+      "sha256": ""
+    },
+    {
+      "id": "raw-hashes:bd9debcc946555ed",
+      "kind": "raw_hashes",
+      "label": "declared raw-file hashes",
+      "sha256": ""
+    },
+    {
+      "id": "prereg:23cab477c0a9b4a5",
+      "kind": "preregistration",
+      "label": "frozen preregistration",
+      "sha256": "197194b5813b1fbcc552a0297b05bf1c970e1772095a3b16a07b899458e75e1a"
+    },
+    {
+      "id": "manifest:e3c70538f03a3598",
+      "kind": "manifest",
+      "label": "dataset manifest",
+      "sha256": "7b674e493c0d25ac7b78009399790e0b6083592ef5ffd8b7703eb4d221829e97"
+    },
+    {
+      "id": "result:83875d6c0ff51cca",
+      "kind": "source_result",
+      "label": "source result artifact",
+      "sha256": "7580c9313e0f751d1b6a1ae0fa473e44db5bec27eeb6ff69e52ffb6bbbf67a41"
+    },
+    {
+      "id": "controls:83875d6c0ff51cca",
+      "kind": "controls",
+      "label": "positive and negative controls",
+      "sha256": ""
+    },
+    {
+      "id": "test:83875d6c0ff51cca",
+      "kind": "test",
+      "label": "ar1_n_eff_adjusted_spearman",
+      "sha256": ""
+    },
+    {
+      "id": "report:0934f0916083d7c4",
+      "kind": "evidence_report",
+      "label": "SUPPORTED",
+      "sha256": ""
+    }
+  ],
+  "schema": "timdr-provenance-graph/1"
+}

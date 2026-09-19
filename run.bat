@@ -27,12 +27,20 @@ echo Uzywam: %PY%
 %PY% --version
 
 if /I "%~1"=="--tests" goto :install_dev
+if /I "%~1"=="--graph" goto :build_graph
 
 echo.
 echo Uruchamiam szybkie demo protokolu.
 %PY% examples\protocol_demo.py
 echo.
 echo Pelne testy: run.bat --tests
+pause
+exit /b %ERRORLEVEL%
+
+:build_graph
+echo.
+echo Buduje graf pochodzenia B4-Kitchen v0.3...
+%PY% examples\build_b4_kitchen_graph.py
 pause
 exit /b %ERRORLEVEL%
 

@@ -1,0 +1,72 @@
+{
+  "artifact_kind": "imported_pre_registered_run",
+  "controls": {
+    "negative_ok": true,
+    "positive_ok": true,
+    "source": {
+      "negative": {
+        "n_eff": 449.3365697133361,
+        "pvalue": 0.6762890153884721,
+        "r1x": 0.7560688009317894,
+        "r1y": 0.7550942323104366,
+        "rho": -0.019737329579484115,
+        "t": -0.4175324208743524
+      },
+      "passed": true,
+      "positive": {
+        "n_eff": 3.0027355577527137,
+        "pvalue": 0.0,
+        "r1x": 0.998176291793313,
+        "r1y": 0.998176291793313,
+        "rho": 1.0,
+        "t": 1001366.8447440796
+      }
+    }
+  },
+  "criteria": {
+    "alpha": 0.05,
+    "min_abs_effect_size": 0.0
+  },
+  "dataset_id": "CMU_KITCHEN_S13_BROWNIE_v0.1",
+  "declared_verdict": "SUPPORTED",
+  "epistemic_status": "IMPORTED_CLAIM_NOT_INDEPENDENTLY_REEXECUTED",
+  "integrity_check": {
+    "expected_verdict": "SUPPORTED",
+    "passed": true
+  },
+  "manifest": {
+    "raw_data_rehashed_by_this_runner": false,
+    "raw_file_hashes_declared": {
+      "microphone_archive_sha256": "27A1AD07AD05CD6C2AEA951B34DD35C029E52D758AABCDC998BBDA6440A8DC15",
+      "microphone_file_sha256": "ARCHIVE_MEMBER_NOT_EXTRACTED",
+      "mocap_archive_sha256": "77609D7ECF8478C68013F2C040F9D48C7B560B828EF7C27DEFB9CF6B4E93AA9F",
+      "mocap_file_sha256": "ARCHIVE_MEMBER_NOT_EXTRACTED",
+      "triangulation_sha256": "9BCDFD51CE489063B2F18A652A31D1882FC7BE52C65100E87F866A91ECFF55E8"
+    },
+    "sha256": "7b674e493c0d25ac7b78009399790e0b6083592ef5ffd8b7703eb4d221829e97",
+    "source": "C:\\Users\\jback\\Downloads\\a\\GIA-TIMDR\\docs\\geometry\\b4_kitchen_manifest_template.json"
+  },
+  "method": "ar1_n_eff_adjusted_spearman",
+  "preregistration": {
+    "sha256": "197194b5813b1fbcc552a0297b05bf1c970e1772095a3b16a07b899458e75e1a",
+    "source": "C:\\Users\\jback\\Downloads\\a\\GIA-TIMDR\\docs\\geometry\\PREREG_B4_KITCHEN_v0.3.md"
+  },
+  "schema": "timdr-evidence/1",
+  "source_result": {
+    "sha256": "7580c9313e0f751d1b6a1ae0fa473e44db5bec27eeb6ff69e52ffb6bbbf67a41",
+    "source": "C:\\Users\\jback\\Downloads\\a\\GIA-TIMDR\\docs\\geometry\\B4_KITCHEN_RESULT_v0.3.json"
+  },
+  "test_evidence": {
+    "effect_size": 0.07082455871135257,
+    "p_value": 0.009259496630642693,
+    "source": {
+      "n_eff": 1345.2914062219852,
+      "pvalue": 0.009259496630642693,
+      "r1x": 0.6207990172194814,
+      "r1y": 0.16144874095024841,
+      "rho": 0.07082455871135257,
+      "t": 2.602321636798427
+    }
+  },
+  "warning": "This is an imported artifact. It is not an independent re-execution or new empirical confirmation."
+}
