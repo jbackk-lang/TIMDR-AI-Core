@@ -91,34 +91,28 @@ from timdr_operators import fft_dominant_mode
 layer = LayerMModal(transform=lambda w: fft_dominant_mode(w, fs=500.0))
 ```
 
-**Naprawione ograniczenie architektury (2026-09-19):** `FundamentalModelLTR.forward()`
-był pierwotnie sekwencyjnym potokiem jednoargumentowym (T→I→M→It→R→E), w
-którym T i M nie mogły oba czytać tego samego surowego okna — wyjście
-pierwszego stawało się (zniekształconym) wejściem drugiego i głośno się
-wywalało (`TimdrOperatorsError`). Na propozycję użytkownika przeprojektowano
-przepływ danych: **T i M czytają teraz surowe wejście równolegle i
-bezpośrednio**, `I` scala ich dwie reprezentacje (`transform` dostaje jeden
-słownik `{"T":..,"M":..}`), `It`/`R` przetwarzają dalej sekwencyjnie, a `E`
-na końcu łączy T/M/R (`transform` dostaje `{"T":..,"M":..,"R":..}`).
-`forward()` zwraca teraz pełny słownik stanu wszystkich warstw
-(`{"T","M","I","It","R","E"}`), nie tylko wyjście `E` — świadoma, udokumentowana
-zmiana kształtu wobec v1. Dowód naprawy:
+**Przepływ danych w `FundamentalModelLTR`:** T i M czytają surowe wejście
+równolegle i bezpośrednio (oba widzą to samo okno). `I` scala ich dwie
+reprezentacje — `transform` dostaje jeden słownik `{"T":..,"M":..}`. `It`
+i `R` przetwarzają dalej sekwencyjnie. `E` na końcu łączy T/M/R — `transform`
+dostaje `{"T":..,"M":..,"R":..}`. `forward()` zwraca pełny słownik stanu
+wszystkich warstw: `{"T","M","I","It","R","E"}`, nie tylko wyjście `E`.
+Model z samymi warstwami domyślnymi (identyczność) zwraca
+`{"T": raw, "M": raw, "R": raw}` opakowane identycznością `E`, nie surowe
+wejście bez zmian. Test:
 `tests/test_timdr_operators.py::test_fundamental_model_ltr_can_now_combine_t_and_m_on_the_same_raw_window`
-(oba operatory na tym samym realnym oknie w jednym wywołaniu). Realny model
-domyślny (same warstwy identycznościowe) już NIE zwraca surowego wejścia
-bez zmian — zwraca `{"T": raw, "M": raw, "R": raw}` opakowane przez
-domyślną identyczność `E`; to celowy, udokumentowany kompromis tej naprawy.
+pokazuje `winding_number`/`crossing_number` (T) i `fft_dominant_mode` (M)
+działające razem na tym samym realnym oknie w jednym wywołaniu.
 
-**Drugie ograniczenie, znalezione empirycznie na realnych danych (nie na
-syntetykach z testów jednostkowych):** `crossing_number` w wersji
-zwektoryzowanej trzyma w pamięci macierz (n, n) wszystkich par segmentów —
-O(n²) pamięci. Realne okno Paderborn (64000 próbek, 1 s @ 64 kHz) próbuje
-zaalokować ~65 GB i się wywala. Funkcja teraz odmawia okien dłuższych niż
-`max_length` (domyślnie 3000) z czytelnym `TimdrOperatorsError`, zamiast
-surowego `MemoryError` — realne, długie okna trzeba samodzielnie
-zdownsamplować lub podzielić na fragmenty przed wywołaniem. Zweryfikowane
-end-to-end na zamrożonym, autoryzowanym oknie treningowym Paderborn (bez
-dotykania holdoutu):
+**Ograniczenie `crossing_number`:** wersja zwektoryzowana trzyma w pamięci
+macierz (n, n) wszystkich par segmentów — O(n²) pamięci. Funkcja odmawia
+okien dłuższych niż `max_length` (domyślnie 3000, ~1,3 GB w najgorszym razie)
+z czytelnym `TimdrOperatorsError` zamiast próbować alokację i zawieść
+surowym `MemoryError` (realne okno Paderborn, 64000 próbek @ 64 kHz,
+wymagałoby ~65 GB). Dłuższe realne okna trzeba samodzielnie zdownsamplować
+lub podzielić na fragmenty przed wywołaniem. Weryfikacja end-to-end na
+zamrożonym, autoryzowanym oknie treningowym Paderborn (bez dotykania
+holdoutu):
 
 ```powershell
 .venv\Scripts\python.exe -m pip install unrar-cffi scipy numpy
