@@ -1,14 +1,23 @@
 # TIMDR-AI-Core
 
-Mały, niezależny rdzeń protokołu TIMDR jako **filtr epistemiczny**.
-
-Nie jest to model matematyczny TIMDR ani silnik, który sam ustala wyniki
-empiryczne. Zapewnia natomiast powtarzalne zasady:
+Rdzeń protokołu TIMDR (`timdr_ai_core.py`, klasa `TIMDRProtocol`) działa jako
+**filtr epistemiczny**: sam nie ustala żadnego wyniku empirycznego, tylko
+ocenia dostarczoną z zewnątrz, prerejestrowaną ewidencję i kontrole. Ta
+część zapewnia:
 
 - kanoniczną prerejestrację z odciskiem SHA-256;
 - jawne kontrole dodatnią i ujemną;
 - blokadę werdyktu `SUPPORTED` bez kontroli i dostarczonej evidencji testu;
 - rozdzielenie potoku Λ–τ–ρ od oceny statusu hipotezy.
+
+Repozytorium zawiera też osobne moduły uczenia (`learning_sandbox.py`,
+`neural_network.py`, `protect90_*_learning.py`) — te faktycznie trenują
+klasyfikatory (najbliższy centroid, mały MLP) i liczą realne metryki
+(dokładność) na danych; to prawdziwe uczenie maszynowe i klasyfikacja, nie
+atrapa (patrz sekcje niżej). Ich wynik jest jednak zawsze kandydatem
+badawczym (`CandidateProposal`, `requires_human_preregistration=True`),
+nigdy bezpośrednim wejściem do werdyktu — nowa prerejestracja jest wymagana,
+zanim cokolwiek z uczenia wpłynie na `SUPPORTED`/`NOT_SUPPORTED`/`INCONCLUSIVE`.
 
 ## Uruchomienie
 
@@ -70,10 +79,14 @@ tego zawsze potrzebna jest osobna, nowa prerejestracja.
 
 ## Granica odpowiedzialności
 
-Status `SUPPORTED`, `NOT_SUPPORTED` lub `INCONCLUSIVE` wynika z
-prerejestrowanego testu i kontroli dostarczonych przez uruchomienie domenowe.
-Warstwy AI/LTR mogą przetwarzać reprezentacje, lecz nie mogą samodzielnie
-ustanowić dowodu ani wyniku empirycznego.
+Status `SUPPORTED`, `NOT_SUPPORTED` lub `INCONCLUSIVE` wynika WYŁĄCZNIE z
+prerejestrowanego testu i kontroli dostarczonych przez uruchomienie domenowe,
+przez `TIMDRProtocol.run_test()`. Warstwy T/I/M/It/R/E (`FundamentalModelLTR`)
+przetwarzają reprezentacje i same nie mogą ustanowić tego werdyktu. Moduły
+uczenia (`LearningSandbox`, `MLPClassifier`) generują realne wyniki empiryczne
+(dokładność klasyfikacji na kalibracji) — to nie jest fikcja ani atrapa —
+ale te wyniki są kandydatami badawczymi, izolowanymi od `TIMDRProtocol`: żaden
+z nich nie wchodzi do werdyktu bez osobnej, nowej prerejestracji człowieka.
 
 ## Operatory T/M/R: realna matematyka wpięta w warstwy LTR
 
