@@ -1,234 +1,254 @@
 # TIMDR-AI-Core
 
-Rdzeń protokołu TIMDR (`timdr_ai_core.py`, klasa `TIMDRProtocol`) działa jako
-**filtr epistemiczny**: sam nie ustala żadnego wyniku empirycznego, tylko
-ocenia dostarczoną z zewnątrz, prerejestrowaną ewidencję i kontrole. Ta
-część zapewnia:
+Python, biblioteka standardowa + opcjonalnie numpy/pandas/scipy/rarfile.
+Wymaga Python 3.10+.
 
-- kanoniczną prerejestrację z odciskiem SHA-256;
-- jawne kontrole dodatnią i ujemną;
-- blokadę werdyktu `SUPPORTED` bez kontroli i dostarczonej evidencji testu;
-- rozdzielenie potoku Λ–τ–ρ od oceny statusu hipotezy.
+## Zakres w jednym akapicie
 
-Repozytorium zawiera też osobne moduły uczenia (`learning_sandbox.py`,
-`neural_network.py`, `protect90_*_learning.py`) — te faktycznie trenują
-klasyfikatory (najbliższy centroid, mały MLP) i liczą realne metryki
-(dokładność) na danych; to prawdziwe uczenie maszynowe i klasyfikacja, nie
-atrapa (patrz sekcje niżej). Ich wynik jest jednak zawsze kandydatem
-badawczym (`CandidateProposal`, `requires_human_preregistration=True`),
-nigdy bezpośrednim wejściem do werdyktu — nowa prerejestracja jest wymagana,
-zanim cokolwiek z uczenia wpłynie na `SUPPORTED`/`NOT_SUPPORTED`/`INCONCLUSIVE`.
+`TIMDRProtocol` (`timdr_ai_core.py`) jest filtrem epistemicznym: sam nie
+ustala żadnego wyniku empirycznego, tylko ocenia dostarczoną z zewnątrz,
+prerejestrowaną ewidencję i kontrole (`run_test()`), blokując werdykt
+`SUPPORTED` bez obu. Reszta repozytorium to: (1) generyczny, wymienny potok
+reprezentacji `FundamentalModelLTR` (warstwy T/I/M/It/R/E), (2) realne,
+przeniesione z sióstr-repo operatory matematyczne do wpięcia w te warstwy,
+(3) moduły uczenia, które faktycznie trenują klasyfikatory i liczą realne
+metryki na danych (najbliższy centroid, mały MLP) — to prawdziwe uczenie
+maszynowe, nie atrapa — ale ich wynik jest zawsze kandydatem badawczym,
+nigdy bezpośrednim wejściem do werdyktu protokołu. Zobacz "Granica
+odpowiedzialności" niżej dla dokładnego podziału.
 
 ## Uruchomienie
+
+```powershell
+.\run.bat --tests
+```
+
+Tworzy `.venv`, instaluje `pytest` i uruchamia cały zestaw testów. Bez
+argumentu `run.bat` odpala krótkie demo protokołu
+(`examples\protocol_demo.py`). Ręcznie, bez batcha:
 
 ```powershell
 python timdr_ai_core.py
 python -m pytest -q
 ```
 
-`pytest` jest potrzebny tylko do uruchomienia testów. Sam moduł korzysta
-wyłącznie z biblioteki standardowej Pythona.
+Rdzeń (`timdr_ai_core.py`) korzysta wyłącznie z biblioteki standardowej.
+Numpy/pandas/scipy/rarfile są potrzebne tylko dla konkretnych, opcjonalnych
+ścieżek opisanych niżej (`pip install -e ".[nazwa-extra]"`).
 
-## PROTECT-90: uczenie badawcze
+## TIMDRProtocol: preregistracja, kontrole, werdykt
 
-Pierwszy plan uczenia jest czteroklasową klasyfikacją `sc_type` w zbiorze
-PROTECT-90. Źródłem jest symulacja EMT, a nie pomiar polowej sieci energetycznej.
-To transparentny baseline najbliższego centroidu na zamrożonych metadanych
-scenariusza — nie algorytm zabezpieczenia i nie wynik B4.
+`Hypothesis` → `TIMDRProtocol.preregister()` zamraża parametry i liczy
+odcisk SHA-256 z kanonicznego JSON (kolejność kluczy nie wpływa na odcisk).
+`run_controls()` akceptuje wyłącznie jawnie dostarczony `ControlResult`
+(brak kontroli = automatycznie nieprzeszedł). `run_test()` zwraca
+`SUPPORTED`/`NOT_SUPPORTED`/`INCONCLUSIVE`:
 
-Najpierw, **przed pierwszym fit**, zamraża się prerejestrację i jej podział
-stratyfikowany: 60% trening, 20% kalibracja, 20% nietykalny holdout.
+- brak przekazanych kontroli, kontrole nieprzeszłe, lub brak `TestEvidence` → `INCONCLUSIVE`;
+- kontrole przeszły i `p_value <= alpha` oraz `|effect_size| >= min_abs_effect_size` → `SUPPORTED`;
+- kontrole przeszły, ale kryteria nie spełnione → `NOT_SUPPORTED`.
+
+Żadna ścieżka nie pozwala warstwom modelu LTR ani modułom uczenia ustawić
+tego werdyktu bezpośrednio — `TIMDR_AI_System.run()` zawsze przechodzi przez
+`TIMDRProtocol`.
+
+## FundamentalModelLTR: warstwy T/I/M/It/R/E
+
+Sześć warstw (`LayerTTopology`, `LayerIInformation`, `LayerMModal`,
+`LayerItTemporal`, `LayerRResonance`, `LayerEEmergence`), każda domyślnie
+identycznością, każda wymienna przez argument `transform=` (jeden
+callable jednoargumentowy). Przepływ danych `FundamentalModelLTR.forward()`:
+
+1. `T` i `M` czytają surowe wejście **równolegle i bezpośrednio** — oba widzą to samo okno, nie łańcuch.
+2. `I` scala ich dwie reprezentacje: `transform` dostaje jeden słownik `{"T":..,"M":..}`.
+3. `It`, potem `R` przetwarzają dalej sekwencyjnie.
+4. `E` na końcu łączy T/M/R: `transform` dostaje `{"T":..,"M":..,"R":..}`.
+
+`forward()` zwraca pełny słownik stanu wszystkich warstw
+(`{"T","M","I","It","R","E"}`), nie tylko wyjście `E`. Model z samymi
+warstwami domyślnymi (identyczność) zwraca `{"T": raw, "M": raw, "R": raw}`
+opakowane identycznością `E` — nie surowe wejście bez zmian.
+
+```python
+from timdr_ai_core import FundamentalModelLTR, LayerTTopology, LayerMModal
+
+model = FundamentalModelLTR(
+    topology=LayerTTopology(lambda w: ...),
+    modal=LayerMModal(transform=lambda w: ...),
+)
+state = model.forward(window)  # {"T":..., "M":..., "I":..., "It":..., "R":..., "E":...}
+```
+
+### Operatory: realna matematyka do wpięcia
+
+`timdr_operators.py` (extra `operators`, potrzebuje numpy) dostarcza gotowe,
+wiernie przeniesione (1:1, z podanym źródłem) funkcje:
+
+- `fft_dominant_mode(window, fs)` — ekstrakcja dominującego trybu (f, phi, A), port z `TIMDR-Modal-Formalism/timdr_modal/real_data_validation.py`; dla `LayerMModal`.
+- `winding_number`/`crossing_number` — niezmienniki topologiczne krzywej osadzonej z opóźnieniem, port z `GIA-TIMDR/core/winding_crossing_ms_bridge.py`; dla `LayerTTopology`. Uczciwy zakres przeniesiony z repo źródłowego: odrzucone na danych syntetycznych, silny-lecz-częściowy sygnał na realnych łożyskach CWRU, niespójny na sejsmice/BTC — diagnostyczne, nie selekcyjne. `crossing_number` jest O(n²) pamięci i odmawia okien dłuższych niż `max_length` (domyślnie 3000, ~1,3 GB w najgorszym razie) z czytelnym `TimdrOperatorsError` zamiast próbować alokację i zawieść surowym `MemoryError` (realne okno Paderborn, 64000 próbek @ 64 kHz, wymagałoby ~65 GB) — dłuższe okna trzeba samodzielnie zdownsamplować lub podzielić.
+- `Modality`/`is_resonant` — Aksjomat 5 gałęzi K, port z `TIMDR-Modal-Formalism/timdr_modal/phase_sync.py` (bez numpy); porównuje dwie modalności, nie pasuje do jednoargumentowego kształtu `LayerRResonance` — użyj jako osobne narzędzie porównawcze.
+
+```powershell
+.venv\Scripts\python.exe -m pip install -e ".[operators]"
+python -m pytest -q tests/test_timdr_operators.py
+python examples\run_timdr_operators_on_paderborn.py  # opcjonalnie: realne dane, patrz sekcja Paderborn
+```
+
+## Moduły uczenia: LearningSandbox, MLPClassifier
+
+`learning_sandbox.py::LearningSandbox` — klasyfikator najbliższego centroidu:
+`fit()` liczy centroidy klas z podziału `train`, wymaga też obecności
+`calibration` i `holdout` (choć holdoutu nie dotyka), `predict_features()`
+klasyfikuje deterministycznie (remis rozstrzyga niższy numer klasy).
+`propose()` zwraca `CandidateProposal` z `requires_human_preregistration=True`
+i `may_not_change_existing_preregistration=True`.
+
+`neural_network.py::MLPClassifier` — generyczny, niezależny od TIMDR
+jednowarstwowy MLP (ReLU + softmax, cross-entropy, pełny gradient descent,
+ręcznie wyprowadzony backprop). Manualne gradienty zweryfikowane różnicami
+skończonymi w `tests/test_neural_network.py` — to dowód poprawności
+matematyki uczenia, nie użyteczności modelu na jakimkolwiek zbiorze danych.
+Deterministyczny przy ustalonym `seed`.
+
+Oba są prawdziwym uczeniem maszynowym i klasyfikacją — nie iluzją. Granica
+jest architektoniczna, nie statystyczna: ich wynik (nawet wysoka dokładność)
+nigdy nie wchodzi do `TIMDRProtocol.run_test()` automatycznie. Wymaga tego
+osobna, nowa prerejestracja człowieka.
+
+`b4_kitchen_learning_adapter.py` wymusza tę samą zasadę w drugą stronę:
+`assess_imported_b4_result()` odrzuca gotowy, zaimportowany wynik ewaluacji
+B4-Kitchen v0.3 jako dane treningowe — ewaluacja i trening to rozłączne
+prerejestracje.
+
+## PROTECT-90: uczenie badawcze na przebiegach EMT
+
+Źródłem jest symulacja EMT (`TIMDR-Grid-Monitor`), nie pomiar polowej sieci
+energetycznej. Żaden z poniższych baseline'ów nie jest algorytmem
+zabezpieczenia ani wynikiem B4.
+
+**Plan metadanych** — czteroklasowa klasyfikacja `sc_type` z 11 kolumn
+metadanych scenariusza (`FEATURE_COLUMNS` w `protect90_learning_adapter.py`).
+Przed pierwszym `fit()` zamraża się prerejestrację i podział stratyfikowany
+(60/20/20, kolejność wg SHA-256, nie losowość runtime):
 
 ```powershell
 .\run.bat --protect90-freeze "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"
 .\run.bat --protect90 "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"
 ```
 
-Druga komenda używa jedynie treningu i kalibracji. Raport z uruchomienia jest
-celowo zapisywany do ignorowanego przez Git `learning_runs/`; nie należy
-otwierać holdoutu w celu doboru cech, modelu ani parametrów.
+Druga komenda używa jedynie treningu i kalibracji; raport trafia do
+ignorowanego przez Git `learning_runs/`.
 
-Osobna, nowa hipoteza używa 16 cech z przebiegów EMT (dla ośmiu lokalizacji:
-szczytowy prąd RMS i minimalne napięcie RMS, oba znormalizowane do pierwszych
-200 ms). Nie używa `sc_type`, lokalizacji uszkodzenia ani czasu zdarzenia jako
-cech. Ponieważ to inna hipoteza, ma własną prerejestrację:
+**Plan waveform** — osobna hipoteza, 16 cech z przebiegów EMT (8 lokalizacji
+× szczytowy prąd RMS / minimalne napięcie RMS, znormalizowane do pierwszych
+200 ms; `sampling_rate_hz=6400`). Nie używa `sc_type`, lokalizacji
+uszkodzenia ani czasu zdarzenia jako cech — ma własną prerejestrację
+(`PROTECT90_WAVEFORM_MULTICLASS_v0.3`):
 
 ```powershell
 .\run.bat --protect90-waveform-freeze "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"
 .venv\Scripts\python.exe -m pip install -e ".[waveform]"
-.\run.bat --protect90-waveform "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"
+.\run.bat --protect90-waveform "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"       # nearest-centroid
+.\run.bat --protect90-waveform-nn "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"    # MLP (neural_network.py)
 ```
 
-`neural_network.py` to generyczny, niezależny od TIMDR jednowarstwowy MLP
-(ReLU + softmax, ręcznie wyprowadzony backprop, zweryfikowany różnicami
-skończonymi w `tests/test_neural_network.py`). `protect90_waveform_nn_learning.py`
-wpina go w tę samą, zamrożoną hipotezę waveform co baseline najbliższego
-centroidu — ten sam podział, ta sama bariera holdoutu. Hiperparametry
-(`HIDDEN_UNITS=12`, `EPOCHS=800`, `LEARNING_RATE=0.05`, `SEED=0`) są stałymi
-modułu, zamrożonymi przed uruchomieniem na kalibracji:
-
-```powershell
-.\run.bat --protect90-waveform-nn "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"
-```
-
-Dokładność na kalibracji z tymi parametrami: `0.6538` (104/104 próbek),
-wobec `0.5288` dla baseline'u najbliższego centroidu na tych samych danych.
-Tak jak `LearningSandbox`, wynik tego modelu jest kandydatem badawczym, nie
-wynikiem TIMDR — nic w tym module nie ustawia werdyktu `TIMDRProtocol`; do
-tego zawsze potrzebna jest osobna, nowa prerejestracja.
+Hiperparametry MLP (`HIDDEN_UNITS=12`, `EPOCHS=800`, `LEARNING_RATE=0.05`,
+`SEED=0`) są stałymi modułu w `protect90_waveform_nn_learning.py`, zamrożonymi
+przed uruchomieniem na kalibracji. Dokładność na kalibracji z tymi
+parametrami, jedno uruchomienie, ten sam podział: `0.6538` (MLP) vs `0.5288`
+(najbliższy centroid), 104/104 próbek kalibracyjnych, holdout nietknięty.
 
 ## Granica odpowiedzialności
 
-Status `SUPPORTED`, `NOT_SUPPORTED` lub `INCONCLUSIVE` wynika WYŁĄCZNIE z
-prerejestrowanego testu i kontroli dostarczonych przez uruchomienie domenowe,
-przez `TIMDRProtocol.run_test()`. Warstwy T/I/M/It/R/E (`FundamentalModelLTR`)
-przetwarzają reprezentacje i same nie mogą ustanowić tego werdyktu. Moduły
-uczenia (`LearningSandbox`, `MLPClassifier`) generują realne wyniki empiryczne
-(dokładność klasyfikacji na kalibracji) — to nie jest fikcja ani atrapa —
-ale te wyniki są kandydatami badawczymi, izolowanymi od `TIMDRProtocol`: żaden
-z nich nie wchodzi do werdyktu bez osobnej, nowej prerejestracji człowieka.
+Status `SUPPORTED`/`NOT_SUPPORTED`/`INCONCLUSIVE` wynika WYŁĄCZNIE z
+prerejestrowanego testu i kontroli dostarczonych przez
+`TIMDRProtocol.run_test()`. Warstwy T/I/M/It/R/E przetwarzają reprezentacje
+i same nie mogą ustanowić tego werdyktu. Moduły uczenia
+(`LearningSandbox`, `MLPClassifier`) generują realne wyniki empiryczne
+(dokładność klasyfikacji na kalibracji) — to nie jest fikcja — ale są
+kandydatami badawczymi, izolowanymi od `TIMDRProtocol`: żaden nie wchodzi
+do werdyktu bez osobnej, nowej prerejestracji człowieka.
 
-## Operatory T/M/R: realna matematyka wpięta w warstwy LTR
+## Ewidencja i graf pochodzenia (B4-Kitchen)
 
-`timdr_operators.py` dostarcza gotowe, wiernie przeniesione (1:1, z podanym
-źródłem) funkcje do wpięcia w `LayerTTopology`/`LayerMModal` przez ich
-argument `transform=` — same warstwy w `timdr_ai_core.py` zostają domyślnie
-identycznością, tak jak wcześniej. `FundamentalModelLTR` przekazuje T i M
-równolegle to samo surowe wejście (patrz niżej), więc oba operatory można
-wpiąć naraz na tym samym oknie:
-
-- `fft_dominant_mode(window, fs)` — ekstrakcja dominującego trybu (f, phi, A)
-  z okna, port z `TIMDR-Modal-Formalism/timdr_modal/real_data_validation.py`;
-- `winding_number`/`crossing_number` — niezmienniki topologiczne krzywej
-  osadzonej z opóźnieniem, port z
-  `GIA-TIMDR/core/winding_crossing_ms_bridge.py` (uczciwy zakres przeniesiony
-  z repo źródłowego: odrzucone na danych syntetycznych, silny-lecz-częściowy
-  sygnał na realnych łożyskach CWRU, niespójny na sejsmice/BTC — diagnostyczne,
-  nie selekcyjne);
-- `Modality`/`is_resonant` — Aksjomat 5 gałęzi K, port z
-  `TIMDR-Modal-Formalism/timdr_modal/phase_sync.py` (bez numpy).
+`evidence_runner.py` importuje i waliduje niemodyfikowalne raporty ewidencji
+(np. `import_b4_kitchen_v03()`) — krzyżowo sprawdza deklarowany werdykt
+przeciwko surowym p-value zamiast im ufać, i etykietuje wynik
+`IMPORTED_CLAIM_NOT_INDEPENDENTLY_REEXECUTED`. `provenance_graph.py` buduje
+graf DAG takich raportów i wykrywa cykle (algorytm Kahna).
 
 ```powershell
-.venv\Scripts\python.exe -m pip install -e ".[operators]"
-python -m pytest -q tests/test_timdr_operators.py
-```
-
-Przykład wpięcia jednej warstwy:
-
-```python
-from timdr_ai_core import LayerMModal
-from timdr_operators import fft_dominant_mode
-
-layer = LayerMModal(transform=lambda w: fft_dominant_mode(w, fs=500.0))
-```
-
-**Przepływ danych w `FundamentalModelLTR`:** T i M czytają surowe wejście
-równolegle i bezpośrednio (oba widzą to samo okno). `I` scala ich dwie
-reprezentacje — `transform` dostaje jeden słownik `{"T":..,"M":..}`. `It`
-i `R` przetwarzają dalej sekwencyjnie. `E` na końcu łączy T/M/R — `transform`
-dostaje `{"T":..,"M":..,"R":..}`. `forward()` zwraca pełny słownik stanu
-wszystkich warstw: `{"T","M","I","It","R","E"}`, nie tylko wyjście `E`.
-Model z samymi warstwami domyślnymi (identyczność) zwraca
-`{"T": raw, "M": raw, "R": raw}` opakowane identycznością `E`, nie surowe
-wejście bez zmian. Test:
-`tests/test_timdr_operators.py::test_fundamental_model_ltr_can_now_combine_t_and_m_on_the_same_raw_window`
-pokazuje `winding_number`/`crossing_number` (T) i `fft_dominant_mode` (M)
-działające razem na tym samym realnym oknie w jednym wywołaniu.
-
-**Ograniczenie `crossing_number`:** wersja zwektoryzowana trzyma w pamięci
-macierz (n, n) wszystkich par segmentów — O(n²) pamięci. Funkcja odmawia
-okien dłuższych niż `max_length` (domyślnie 3000, ~1,3 GB w najgorszym razie)
-z czytelnym `TimdrOperatorsError` zamiast próbować alokację i zawieść
-surowym `MemoryError` (realne okno Paderborn, 64000 próbek @ 64 kHz,
-wymagałoby ~65 GB). Dłuższe realne okna trzeba samodzielnie zdownsamplować
-lub podzielić na fragmenty przed wywołaniem. Weryfikacja end-to-end na
-zamrożonym, autoryzowanym oknie treningowym Paderborn (bez dotykania
-holdoutu):
-
-```powershell
-.venv\Scripts\python.exe -m pip install unrar-cffi scipy numpy
-python examples\run_timdr_operators_on_paderborn.py
+.\run.bat --graph          # buduje graf pochodzenia B4-Kitchen v0.3
+.\run.bat --learn          # demo sandboxa uczenia bez dostępu do holdout
+.\run.bat --b4-boundary    # pokazuje odrzucenie ewaluacji jako danych treningowych
 ```
 
 ## Lekki lokalnie, uczący się z sieci
 
-Lokalny komputer ma wykonywać mało pracy: jeden proces naraz, bez kopii
-przebiegów i z limitem 8 MB na epizod. Rozwój źródłowy może zachodzić
-automatycznie w sieci: środowisko cyklicznie pobiera nowe dokumenty z
-zadeklarowanych katalogów HTTPS i aktualizuje lokalny graf pochodzenia oraz
-słownik pojęć. Jeden cykl jest ograniczony do 16 dokumentów po 2 MB.
-
-Automatyczne uczenie sieciowe nie pobiera ani nie uruchamia obcego kodu, nie
-wysyła danych lokalnych, nie modyfikuje prerejestracji i nie ustanawia wyniku
-TIMDR. Aktualizuje wyłącznie model-kandydata wiedzy o źródłach.
-
-Skopiuj `online_catalogs.template.json`, wpisz katalogi zwracające JSON w
-formacie `items: [{id, url, title}]`, a następnie uruchom cykl:
+Lokalny komputer wykonuje mało pracy: `LocalBudget` w `environment_policy.py`
+ustawia jeden proces naraz (`max_parallel_jobs=1`) i limit 8 MB na epizod
+(`max_episode_bytes`, egzekwowany np. przez `protect90_waveform_learning.py`
+przed odczytem każdego pliku waveform). Rozwój źródłowy może zachodzić
+automatycznie w sieci: cykl pobiera nowe dokumenty z zadeklarowanych
+katalogów HTTPS (maks. 16 dokumentów na cykl, po maks. 2 MB) i aktualizuje
+lokalny graf pochodzenia/słownik pojęć. Automatyczne uczenie sieciowe nie
+pobiera ani nie uruchamia obcego kodu, nie wysyła danych lokalnych, nie
+modyfikuje prerejestracji i nie ustanawia wyniku TIMDR.
 
 ```powershell
-.\run.bat --online-learn "online_catalogs.json"
+.\run.bat --online-learn "online_catalogs.json"    # skopiuj wcześniej online_catalogs.template.json
+.\run.bat --online-rank                            # trasuje zebrane źródła po słowach kluczowych do 4 gałęzi TIMDR
+.\run.bat --research-queue                         # buduje kolejkę kandydatów, nie tworzy hipotez ani mostów
 ```
 
-Stan uczenia zapisuje się w ignorowanym przez Git `external_cache/`.
+Stan zapisuje się w ignorowanym przez Git `external_cache/`. Ranking i
+kolejka badawcza to trasowanie/spis braków — nie stanowią wyniku badawczego
+ani mostu między gałęziami.
 
-Można też uszeregować zebrane dokumenty jako kandydatów czterech niezależnych
-gałęzi TIMDR — M/S, G, K i META-DYNAMICS. Ranking jest wyłącznie trasowaniem
-źródeł po słowach kluczowych; nie tworzy mostu między gałęziami i nie stanowi
-wyniku badawczego:
-
-```powershell
-.\run.bat --online-rank
-```
-
-Po rankingu można zbudować kolejkę badawczą. Każde źródło trafia dokładnie do
-jednej najlepiej pasującej gałęzi i otrzymuje listę brakujących artefaktów;
-żadne źródło nie staje się przez to automatycznie datasetem, hipotezą ani
-mostem między gałęziami.
-
-```powershell
-.\run.bat --research-queue
-```
-
-### Pobranie zamrożonego artefaktu
-
-Niezależnie od automatycznego uczenia można pobrać konkretny artefakt danych,
-gdy jego SHA-256 jest znane z góry. Służy do tego
-`external_sources.template.json`.
-
-Szablon [external_sources.template.json](external_sources.template.json)
-jest miejscem na deklarację źródła. Po uzupełnieniu można pobrać jedną pozycję:
+Niezależnie od cyklu automatycznego, konkretny artefakt danych o znanym z
+góry SHA-256 można pobrać jawnie przez `download_declared_source()`
+(HTTPS-only, odmawia nadpisania istniejącego cache):
 
 ```powershell
 .\run.bat --external-source "external_sources.json" "source-id"
 ```
 
-Plik trafi do lokalnego, ignorowanego przez Git `external_cache/`. Dopiero nowa
-prerejestracja może nadać mu status danych do analizy lub uczenia.
+Szablon: [external_sources.template.json](external_sources.template.json).
+Plik trafia do `external_cache/`; dopiero nowa prerejestracja nadaje mu
+status danych do analizy lub uczenia.
 
 ## Paderborn: zewnętrzna replikacja M/S
 
-Pobrany minimalny kandydat Paderborn zawiera trzy klasy: zdrowe `K001`,
-sztuczne EDM uszkodzenie pierścienia zewnętrznego `KA01` oraz pierścienia
-wewnętrznego `KI01`. Archiwa surowych danych są ignorowane przez Git.
-
-Zamrożenie selekcji nie czyta wartości sygnału — używa wyłącznie nazw plików
-MATLAB w archiwach i tworzy podział 144 / 48 / 48:
+Trzy klasy: zdrowe `K001`, sztuczne EDM uszkodzenie pierścienia
+zewnętrznego `KA01`, pierścienia wewnętrznego `KI01`. Archiwa `.rar` są
+ignorowane przez Git. Zamrożenie selekcji nie czyta wartości sygnału —
+tylko nazwy plików MATLAB w archiwach, podział 144/48/48:
 
 ```powershell
 .\run.bat --paderborn-freeze
 ```
 
-Przed ekstrakcją przebiegów potrzebna jest osobna prerejestracja hipotezy M/S.
-
-Taka prerejestracja została zapisana jako `PADERBORN_MS_HYPOTHESIS_v0.1`.
-Definiuje kanał `vibration_1`, cztery jednosekundowe okna na pomiar, cztery
-cechy M/S, kontrolę dodatnią i ujemną oraz jednorazową ocenę holdoutu. Przed
-implementacją ekstraktora nie należy otwierać payloadów MATLAB z holdoutu.
-
-Ekstraktor Paderborn otwiera wyłącznie zamrożone pliki treningowe i
-kalibracyjne, a żądanie holdoutu odrzuca przed otwarciem archiwum. Techniczny
-odczyt jednego pliku treningowego:
+Prerejestracja hipotezy M/S (`PADERBORN_MS_HYPOTHESIS_v0.1`) definiuje kanał
+`vibration_1`, cztery jednosekundowe okna na pomiar (`SAMPLE_RATE_HZ=64000`),
+cztery cechy M/S, kontrolę dodatnią/ujemną, jednorazową ocenę holdoutu.
+`paderborn_extractor.py` otwiera wyłącznie zamrożone pliki treningowe i
+kalibracyjne — żądanie holdoutu odrzuca przed otwarciem archiwum:
 
 ```powershell
 .\run.bat --paderborn-schema
 ```
+
+## Testy
+
+```powershell
+.\run.bat --tests
+```
+
+lub ręcznie `python -m pytest -q` po `pip install -e ".[dev]"`. Testy
+zależne od numpy używają `pytest.importorskip("numpy")` i pomijają się
+bez niego. Testy wymagające realnych plików danych (waveform PROTECT-90,
+archiwa Paderborn) nie są częścią tego zestawu — sprawdzają logikę
+(podział, walidację prereg, odmowę holdoutu) na syntetycznych/tymczasowych
+danych; uruchomienie na realnych danych wymaga zewnętrznego repo
+`TIMDR-Grid-Monitor` (PROTECT-90) lub pobranych archiwów Paderborn, i jest
+wywoływane ręcznie przez `run.bat`/`examples\*.py` jak wyżej.
