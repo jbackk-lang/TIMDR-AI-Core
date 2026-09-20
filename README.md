@@ -50,6 +50,24 @@ cech. Ponieważ to inna hipoteza, ma własną prerejestrację:
 .\run.bat --protect90-waveform "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"
 ```
 
+`neural_network.py` to generyczny, niezależny od TIMDR jednowarstwowy MLP
+(ReLU + softmax, ręcznie wyprowadzony backprop, zweryfikowany różnicami
+skończonymi w `tests/test_neural_network.py`). `protect90_waveform_nn_learning.py`
+wpina go w tę samą, zamrożoną hipotezę waveform co baseline najbliższego
+centroidu — ten sam podział, ta sama bariera holdoutu. Hiperparametry
+(`HIDDEN_UNITS=12`, `EPOCHS=800`, `LEARNING_RATE=0.05`, `SEED=0`) są stałymi
+modułu, zamrożonymi przed uruchomieniem na kalibracji:
+
+```powershell
+.\run.bat --protect90-waveform-nn "C:\Users\jback\Downloads\a\TIMDR-Grid-Monitor"
+```
+
+Dokładność na kalibracji z tymi parametrami: `0.6538` (104/104 próbek),
+wobec `0.5288` dla baseline'u najbliższego centroidu na tych samych danych.
+Tak jak `LearningSandbox`, wynik tego modelu jest kandydatem badawczym, nie
+wynikiem TIMDR — nic w tym module nie ustawia werdyktu `TIMDRProtocol`; do
+tego zawsze potrzebna jest osobna, nowa prerejestracja.
+
 ## Granica odpowiedzialności
 
 Status `SUPPORTED`, `NOT_SUPPORTED` lub `INCONCLUSIVE` wynika z

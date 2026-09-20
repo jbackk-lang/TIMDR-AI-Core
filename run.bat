@@ -34,7 +34,13 @@ if /I "%~1"=="--protect90-freeze" goto :protect90_freeze
 if /I "%~1"=="--protect90" goto :protect90_train
 if /I "%~1"=="--protect90-waveform-freeze" goto :protect90_waveform_freeze
 if /I "%~1"=="--protect90-waveform" goto :protect90_waveform_train
+if /I "%~1"=="--protect90-waveform-nn" goto :protect90_waveform_nn_train
 if /I "%~1"=="--external-source" goto :external_source
+if /I "%~1"=="--online-learn" goto :online_learn
+if /I "%~1"=="--online-rank" goto :online_rank
+if /I "%~1"=="--research-queue" goto :research_queue
+if /I "%~1"=="--paderborn-freeze" goto :paderborn_freeze
+if /I "%~1"=="--paderborn-schema" goto :paderborn_schema
 
 echo.
 echo Uruchamiam szybkie demo protokolu.
@@ -87,6 +93,7 @@ echo   run.bat --protect90-freeze "C:\sciezka\TIMDR-Grid-Monitor"
 echo   run.bat --protect90 "C:\sciezka\TIMDR-Grid-Monitor"
 echo   run.bat --protect90-waveform-freeze "C:\sciezka\TIMDR-Grid-Monitor"
 echo   run.bat --protect90-waveform "C:\sciezka\TIMDR-Grid-Monitor"
+echo   run.bat --protect90-waveform-nn "C:\sciezka\TIMDR-Grid-Monitor"
 pause
 exit /b 2
 
@@ -105,6 +112,16 @@ if errorlevel 1 goto :waveform_dependencies
 echo.
 echo Uruchamiam waveform train/calibration; holdout nie bedzie otwierany...
 %PY% examples\train_protect90_waveform.py "%~2"
+pause
+exit /b %ERRORLEVEL%
+
+:protect90_waveform_nn_train
+if "%~2"=="" goto :protect90_usage
+%PY% -c "import numpy" >nul 2>&1
+if errorlevel 1 goto :waveform_dependencies
+echo.
+echo Uruchamiam siec MLP (numpy) na train/calibration; holdout nie bedzie otwierany...
+%PY% examples\train_protect90_waveform_nn.py "%~2"
 pause
 exit /b %ERRORLEVEL%
 
@@ -127,6 +144,63 @@ exit /b %ERRORLEVEL%
 echo Uzycie: run.bat --external-source "manifest.json" "source_id"
 pause
 exit /b 2
+
+:online_learn
+if "%~2"=="" goto :online_learn_usage
+echo.
+echo Uruchamiam automatyczny, ograniczony cykl uczenia z katalogow internetowych...
+%PY% examples\online_learn.py "%~2"
+pause
+exit /b %ERRORLEVEL%
+
+:online_learn_usage
+echo Uzycie: run.bat --online-learn "online_catalogs.json"
+pause
+exit /b 2
+
+:online_rank
+echo.
+echo Klasyfikuje zrodla jako kandydatow czterech galezi TIMDR...
+%PY% examples\rank_online_sources.py
+pause
+exit /b %ERRORLEVEL%
+
+:research_queue
+echo.
+echo Buduje kolejke kandydatow badawczych bez tworzenia hipotez...
+%PY% examples\build_research_queue.py
+pause
+exit /b %ERRORLEVEL%
+
+:paderborn_freeze
+%PY% -c "import rarfile" >nul 2>&1
+if errorlevel 1 goto :paderborn_dependencies
+echo.
+echo Zamrazam wybor Paderborn na podstawie samych nazw plikow archiwum...
+%PY% examples\freeze_paderborn_dataset.py
+pause
+exit /b %ERRORLEVEL%
+
+:paderborn_dependencies
+echo Brakuje rarfile, potrzebnego tylko do spisu metadanych archiwum.
+echo Zainstaluj: .venv\Scripts\python.exe -m pip install -e ".[paderborn]"
+pause
+exit /b 3
+
+:paderborn_schema
+%PY% -c "import numpy, scipy" >nul 2>&1
+if errorlevel 1 goto :paderborn_analysis_dependencies
+echo.
+echo Sprawdzam kanal treningowy Paderborn; holdout jest blokowany...
+%PY% examples\inspect_paderborn_train_schema.py
+pause
+exit /b %ERRORLEVEL%
+
+:paderborn_analysis_dependencies
+echo Brakuje numpy lub scipy dla technicznego odczytu MATLAB.
+echo Zainstaluj: .venv\Scripts\python.exe -m pip install -e ".[paderborn-analysis]"
+pause
+exit /b 3
 
 :install_dev
 %PY% -c "import pytest" >nul 2>&1
