@@ -1,0 +1,42 @@
+{
+  "schema": "timdr-external-dataset-candidate/1",
+  "dataset_id": "Paderborn Bearing Data Center — minimal three-class candidate",
+  "status": "DOWNLOADED_NOT_FROZEN_NOT_AUTHORIZED_FOR_TRAINING",
+  "source": {
+    "publisher": "Chair of Design and Drive Technology, Paderborn University",
+    "official_index": "https://groups.uni-paderborn.de/kat/BearingDataCenter/",
+    "documentation": "https://mb.uni-paderborn.de/fileadmin-mb/kat/PDF/Veroeffentlichungen/20160703_PHME16_CM_bearing.pdf",
+    "license": "CC BY-NC 4.0; citation required; commercial use requires contacting the author"
+  },
+  "signals": {
+    "primary": ["synchronous vibration", "motor current"],
+    "sampling_rate_hz": 64000,
+    "measurement_layout": "20 measurements of 4 seconds for each operating condition and bearing code"
+  },
+  "archives": [
+    {
+      "file": "K001.rar",
+      "url": "https://groups.uni-paderborn.de/kat/BearingDataCenter/K001.rar",
+      "bytes": 173881721,
+      "sha256": "0f119ebdb28fb2f4d9fac1beb1319429f63f7ae1256c23c872f280f3560918e5",
+      "class": "healthy"
+    },
+    {
+      "file": "KA01.rar",
+      "url": "https://groups.uni-paderborn.de/kat/BearingDataCenter/KA01.rar",
+      "bytes": 166571438,
+      "sha256": "6a6be1e11132730cc6f560d51eacedcbfd5fd74b829e9d8d3728c6c8a7cd4c0e",
+      "class": "outer_ring_artificial_EDM"
+    },
+    {
+      "file": "KI01.rar",
+      "url": "https://groups.uni-paderborn.de/kat/BearingDataCenter/KI01.rar",
+      "bytes": 175265779,
+      "sha256": "b1dd6d99bb64d556f889fefaedb7e6e672900f5f015125615feaae776f055348",
+      "class": "inner_ring_artificial_EDM"
+    }
+  ],
+  "total_downloaded_bytes": 515718938,
+  "training_boundary": "No archive has been extracted, inspected for signal values, split, or used for learning. A separate preregistration must define extraction, split, controls, and evaluation before any run.",
+  "timdr_scope": "Candidate M/S external replication source only; it is not a TIMDR result, bridge, or production fault classifier."
+}

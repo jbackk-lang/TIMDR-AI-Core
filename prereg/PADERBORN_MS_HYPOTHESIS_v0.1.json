@@ -1,0 +1,54 @@
+{
+  "schema": "timdr-ms-hypothesis-preregistration/1",
+  "version": "PADERBORN_MS_HYPOTHESIS_v0.1",
+  "state": "PREREGISTERED_BEFORE_WAVEFORM_EXTRACTION",
+  "dataset_freeze": "PADERBORN_MS_REPLICATION_v0.1",
+  "scope": "External M/S diagnostic replication only. This is not a geometry, modal, META-DYNAMICS, or cross-branch analysis.",
+  "hypothesis": {
+    "name": "paderborn_vibration_ms_three_class_diagnostic",
+    "claim": "A pre-registered M/S feature vector from vibration_1 separates healthy, artificial outer-ring EDM, and artificial inner-ring EDM classes above a fixed held-out baseline.",
+    "role": "diagnostic classifier, not a fault selector or production protection function"
+  },
+  "input": {
+    "channel": "vibration_1",
+    "expected_sampling_rate_hz": 64000,
+    "file_payload_access_after_this_preregistration": "authorized only for the members listed in PADERBORN_MS_REPLICATION_v0.1"
+  },
+  "windowing": {
+    "rule": "four contiguous, non-overlapping windows [0,1), [1,2), [2,3), [3,4) seconds from every selected four-second measurement",
+    "split_unit": "entire MATLAB measurement file; windows never cross train/calibration/holdout boundaries"
+  },
+  "features": {
+    "M/S": [
+      "anomaly_rate: fraction of samples whose robust healthy-train z-score exceeds 3 in absolute value",
+      "defect_rate: fraction of first differences whose robust healthy-train z-score exceeds 3 in absolute value",
+      "resonance_M_rate: fraction of 20 ms blocks containing at least three anomaly samples",
+      "signal_twist_rate: rate of sign reversals of the first difference after robust thresholding"
+    ],
+    "classical_controls_not_part_of_claim": ["RMS", "crest_factor", "excess_kurtosis", "spectral_entropy"]
+  },
+  "fitting": {
+    "model": "train-standardized nearest-centroid classifier on four M/S features",
+    "normalization": "medians and MAD scales from healthy train windows only; zero MAD is replaced by 1.0",
+    "classes": ["healthy", "outer_ring_artificial_EDM", "inner_ring_artificial_EDM"],
+    "no_tuning": "No feature, threshold, window, classifier, or split modification after calibration or holdout access."
+  },
+  "controls": {
+    "positive": "Add deterministic sparse impulses to copies of healthy train windows; anomaly_rate and defect_rate must both increase relative to their originals.",
+    "negative": "Permute calibration labels with fixed seed 20260920; resulting macro-F1 must be at most 0.40.",
+    "gate": "If either control fails, holdout verdict is INCONCLUSIVE."
+  },
+  "evaluation": {
+    "calibration_use": "one technical check only; it may not modify the plan",
+    "holdout_metric": "macro-F1 across the three classes, aggregated at measurement-file level by majority vote of its four window predictions",
+    "supported_if": "both controls pass AND holdout macro-F1 >= 0.60 AND holdout macro-F1 minus fixed-seed permuted-label macro-F1 >= 0.20",
+    "not_supported_if": "both controls pass but one or both supported criteria fail",
+    "inconclusive_if": "a control fails, required channel metadata is absent, or frozen data integrity cannot be verified"
+  },
+  "holdout_policy": "No holdout payload may be read before an explicit one-time evaluation command is authorized after implementation and tests are committed.",
+  "limitations": [
+    "The source is a laboratory benchmark, not an operational industrial deployment.",
+    "Only artificial EDM defects are represented in the two damaged classes.",
+    "A successful outcome would not establish a TIMDR cross-branch bridge or general production performance."
+  ]
+}

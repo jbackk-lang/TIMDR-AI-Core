@@ -1,0 +1,991 @@
+{
+  "classes": [
+    "healthy",
+    "inner_ring_artificial_EDM",
+    "outer_ring_artificial_EDM"
+  ],
+  "holdout_policy": "Holdout MATLAB payloads must not be extracted, inspected, used for feature design, trained on, or calibrated on.",
+  "next_required_artifact": "A separate M/S hypothesis preregistration defining one signal channel, windows, features, controls, and evaluation criteria.",
+  "schema": "timdr-paderborn-dataset-freeze/1",
+  "selection_method": "RAR member names only; no MATLAB file payload was read.",
+  "source_manifest_sha256": "22ad737b6d1a0b16de8ebc46e5d9e1eb69e7ebe470b197db89416993568163c6",
+  "split": {
+    "counts": {
+      "calibration": 48,
+      "holdout": 48,
+      "train": 144
+    },
+    "members": {
+      "calibration": [
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_9.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_5.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_14.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_16.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_7.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_4.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_1.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_9.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_7.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_11.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_6.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_19.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_4.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_2.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_18.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_16.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_18.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_17.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_20.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_2.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_14.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_4.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_5.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_16.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_3.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_16.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_15.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_12.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_9.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_10.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_2.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_13.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_1.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_9.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_14.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_7.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_16.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_18.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_10.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_15.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_8.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_15.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_4.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_6.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_5.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_18.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_13.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_10.mat"
+        }
+      ],
+      "holdout": [
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_13.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_20.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_14.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_17.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_14.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_10.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_9.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_8.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_20.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_11.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_7.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_17.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_1.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_11.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_10.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_5.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_18.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_7.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_8.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_18.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_6.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_13.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_13.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_8.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_16.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_15.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_2.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_17.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_17.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_14.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_10.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_7.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_17.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_3.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_18.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_6.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_6.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_10.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_5.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_8.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_20.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_18.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_16.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_7.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_12.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_2.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_12.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_8.mat"
+        }
+      ],
+      "train": [
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_15.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_14.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_6.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_13.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_4.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_19.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_15.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_12.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_12.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_10.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_5.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_18.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_20.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_13.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_15.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_11.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_2.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_8.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_18.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_6.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_7.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_19.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_3.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_2.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_12.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_3.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_1.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_16.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_15.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_17.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_3.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_13.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_2.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_17.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_10.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_9.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_12.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_16.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_19.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_6.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_3.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M01_F10_K001_18.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N09_M07_F10_K001_8.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_4.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F04_K001_20.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_8.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_1.mat"
+        },
+        {
+          "archive": "K001.rar",
+          "member": "K001/N15_M07_F10_K001_5.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_8.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_20.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_15.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_8.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_13.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_9.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_3.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_3.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_17.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_5.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_6.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_19.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_1.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_10.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_20.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_1.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_16.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_1.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_1.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_19.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_11.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_4.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_11.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_4.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_12.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_15.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_9.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_9.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_2.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_18.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_14.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_5.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_11.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_20.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_6.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_14.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_3.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F10_KI01_11.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_12.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_7.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_19.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_5.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_6.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_19.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_7.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M07_F04_KI01_10.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N15_M01_F10_KI01_4.mat"
+        },
+        {
+          "archive": "KI01.rar",
+          "member": "KI01/N09_M07_F10_KI01_12.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_16.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_9.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_2.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_4.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_9.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_14.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_5.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_2.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_3.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_20.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_14.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_7.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_4.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_12.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_1.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_16.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_15.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_3.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_10.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_13.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_20.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_7.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_4.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_13.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_17.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_17.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_2.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_19.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_8.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_6.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_1.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_19.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_20.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_19.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_13.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_19.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_11.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_5.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N09_M07_F10_KA01_11.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_9.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_11.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_17.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_12.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_15.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F10_KA01_1.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_3.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M01_F10_KA01_11.mat"
+        },
+        {
+          "archive": "KA01.rar",
+          "member": "KA01/N15_M07_F04_KA01_14.mat"
+        }
+      ]
+    },
+    "rule": "per class: SHA-256 order of member name; first 48 train, next 16 calibration, final 16 holdout",
+    "seed": "PADERBORN_MS_REPLICATION_v0.1:file-metadata-only"
+  },
+  "state": "FROZEN_BEFORE_WAVEFORM_EXTRACTION",
+  "version": "PADERBORN_MS_REPLICATION_v0.1"
+}
