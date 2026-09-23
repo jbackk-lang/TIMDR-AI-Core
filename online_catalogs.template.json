@@ -1,0 +1,10 @@
+{
+  "schema": "timdr-online-learning-config/1",
+  "purpose": "Automatic source-graph learning. Catalogs must return JSON: { items: [{ id, url, title }] }.",
+  "catalogs": [
+    {
+      "id": "replace-with-catalog-id",
+      "url": "https://example.org/catalog.json"
+    }
+  ]
+}

@@ -1,9 +1,4 @@
-"""Resource and network boundary for a small local TIMDR environment.
-
-The local machine evaluates frozen artifacts.  External material enters only
-through a declared, checksummed source manifest; it never changes a frozen
-preregistration or triggers training by itself.
-"""
+"""Resource boundary: keep local work small and allow bounded online learning."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,7 +16,9 @@ class EnvironmentPolicyError(RuntimeError):
 class LocalBudget:
     max_parallel_jobs: int = 1
     max_episode_bytes: int = 8 * 1024 * 1024
-    max_download_bytes: int = 25 * 1024 * 1024
+    max_download_bytes: int = 1024 * 1024 * 1024
+    max_online_documents_per_cycle: int = 16
+    max_online_document_bytes: int = 2 * 1024 * 1024
 
 
 BUDGET = LocalBudget()
@@ -36,7 +33,7 @@ def assert_episode_size(path: str | Path) -> None:
 
 
 def download_declared_source(url: str, expected_sha256: str, output_path: str | Path) -> Path:
-    """Explicit, bounded download. No discovery, crawling, upload, or code execution."""
+    """Explicit, bounded checksum-verified download for a frozen data artifact."""
     parsed = urlparse(url)
     if parsed.scheme != "https" or not parsed.netloc:
         raise EnvironmentPolicyError("Only an explicit HTTPS source URL is accepted.")

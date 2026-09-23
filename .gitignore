@@ -3,5 +3,8 @@ __pycache__/
 *.py[cod]
 learning_runs/
 external_cache/
+data/paderborn_candidate/raw/
+online_catalogs.json
 .venv/
+.tools/
 *.egg-info/
