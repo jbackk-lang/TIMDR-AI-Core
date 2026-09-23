@@ -115,6 +115,19 @@ class MLPClassifier:
         probs, _ = self._forward(X)
         return probs
 
+    def hidden_activations(self, X: Sequence[Sequence[float]]):
+        """Return the one hidden layer's activations for diagnostic use.
+
+        Rows retain input order, so consecutive rows may represent successive
+        steps of one trajectory. This does not compare different layers.
+        """
+        np = _require_numpy()
+        X = np.asarray(X, dtype=float)
+        if X.ndim != 2 or X.shape[1] != self.n_features:
+            raise NeuralNetworkError(f"Expected input shape (n, {self.n_features}); got {X.shape}.")
+        _, (_, _, hidden, _) = self._forward(X)
+        return hidden.copy()
+
     def predict(self, X: Sequence[Sequence[float]]):
         np = _require_numpy()
         return np.argmax(self.predict_proba(X), axis=1)
