@@ -120,6 +120,182 @@ osobna, nowa prerejestracja człowieka.
 B4-Kitchen v0.3 jako dane treningowe — ewaluacja i trening to rozłączne
 prerejestracje.
 
+### Eksploracyjna diagnostyka aktywacji jednej warstwy
+
+`activation_diagnostics.py` mierzy wyłącznie kolejne aktywacje **tej samej**
+warstwy zamrożonego modelu: `delta_time` (RMS różnicy między krokami),
+`lambda_channel` (dyspersja między kanałami w jednym kroku) i
+`tau_lambda_time` (tempo zmiany tej dyspersji). To lokalne definicje
+inspirowane TIMDR, nie utożsamione z operatorami innych domen. Nie ma tu
+odejmowania wektorów z różnych warstw ani twierdzenia o „czasie myślenia”.
+
+`fit_healthy_reference()` używa wyłącznie poprawnych trajektorii
+kalibracyjnych i zamraża centrum, skalę oraz próg alarmu. Wynik demonstracji
+można zobaczyć poleceniem:
+
+```powershell
+.\.venv\Scripts\python.exe examples\activation_probe_demo.py
+```
+
+Demonstracja używa małego MLP i **wyłącznie syntetycznych** sekwencji.
+Kolejne kroki są tu kolejnymi wejściami do tej samej sieci, a nie
+tokenami generowanymi przez model językowy; nie jest to test halucynacji.
+W pierwszym, niepoprawianym po obejrzeniu wyniku przebiegu: 74/200
+końcowych predykcji było błędnych; AUC diagnostyki aktywacji wyniosło
+około 1,00 wobec 0,60 dla `1 - max(softmax)`. Jednak alarm wystąpił też
+u 15/26 (57,7%) zakłóconych, lecz nadal poprawnie sklasyfikowanych
+przypadków. Ta kontrola fałszywych alarmów **nie przechodzi** — bardzo
+wysokie AUC nie uprawnia do ogłoszenia działającego detektora błędów.
+Zakłócenie jest osobną cechą scenariusza, a etykieta błędu wynika z
+rzeczywistej poprawności predykcji, nie z obecności zakłócenia.
+
+Kod nie produkuje werdyktu `TIMDRProtocol` i nie dotyka istniejących
+holdoutów. Zanim padnie twierdzenie o dodatkowej informacji względem
+confidence, potrzebny jest osobny zamrożony eksperyment na danych
+rzeczywistych, z kontrolą trudnych poprawnych przykładów i porównaniem
+modelu łączącego oba kanały z modelem używającym samej pewności.
+
+**Wariant v0.2 (osobny, eksploracyjny):** `activation_diagnostics_v02.py`
+rozdziela podpisaną średnią zmianę kanałów od rozrzutu tej zmiany;
+`lambda` opisuje rozkład aktywności między kanałami przez znormalizowaną
+entropię, a `tau` mierzy tempo jej zmiany względem wcześniejszej
+aktywności tej samej sekwencji. Drugi wariant referencji dzieli zdrowe
+przykłady na łatwiejsze/trudniejsze według ruchu **wejścia przed ostatnim
+krokiem** — bez użycia prawdziwej klasy, poprawności wyniku ani końcowego
+zakłócenia. Stare definicje i wynik v0.1 pozostały bez zmian.
+
+```powershell
+.\.venv\Scripts\python.exe examples\activation_probe_v02.py
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_activation_diagnostics*.py
+```
+
+Na nowym syntetycznym zestawie (400 przypadków, inne ziarna niż v0.1)
+porównanie na **tych samych** przykładach dało:
+
+| Wariant | AUC błędu | Fałszywy alarm: trudne poprawne | Czułość: zakłócone błędne |
+| --- | ---: | ---: | ---: |
+| v0.1, stara metryka | 0,874 | 25,0% | 60,5% |
+| v0.2, nowe cechy bez podziału | 0,942 | 77,1% | 98,7% |
+| v0.2, podział według trudności | 0,931 | 70,8% | 92,1% |
+| Sama niepewność `1 - max(softmax)` | 0,584 | nie ustalono wspólnego progu | nie ustalono wspólnego progu |
+
+Podział według trudności ograniczył część fałszywych alarmów v0.2, ale
+**nie uratował kontroli negatywnej**. Większe AUC i czułość są tu okupione
+zbyt wieloma alarmami dla poprawnych wejść. Nie dostrajano progu po tym
+wyniku. „Wczesny alarm” również nie został przetestowany: zakłócenie
+w tym generatorze pojawia się dopiero w ostatnim kroku, więc nie ma
+wcześniejszego momentu, w którym taki alarm mógłby się pojawić.
+
+**Wariant v0.3 — kierunek przy podobnym Δ i wczesny alarm:** osobny plan
+przed pierwszym przebiegiem jest w
+`prereg/ACTIVATION_PROBE_v0.3_SYNTHETIC_PLAN.md` (SHA-256 przed przebiegiem:
+`c3695768d418ad5046fc4d8856e2280137738a35bf51ea88e9ce30677c03a9a1`).
+Ponieważ plan pozostaje lokalnym, niezatwierdzonym commitem, hash nie jest
+niezależnym dowodem prerejestracji. Test dotyczy nadal jednego zamrożonego
+MLP i **syntetycznych** trajektorii, nie modeli językowych ani danych
+rzeczywistych. Typ wejścia jest tylko kontrolą raportową; prawdziwa klasa
+nie wchodzi do sygnału alarmowego.
+
+```powershell
+.\.venv\Scripts\python.exe examples\activation_probe_v03.py
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_activation_diagnostics_v03.py
+```
+
+W pierwszym przebiegu części A: 667 zakłóconych-błędnych i 133
+zakłóconych-poprawnych. Tylko **najwyższy** z pięciu przedziałów Δ miał
+co najmniej 10 przykładów każdej grupy (658/91); pozostałe cztery nie
+kwalifikowały się. W tym jednym przedziale `shape_js` osiągnęło AUC
+`0,933`, podpisany kierunek KS `0,583`, a `locality` AUC `0,185` w
+prerejestrowanym kierunku. Formalny warunek *kandydata do replikacji*
+przeszedł (91 par), ale to **nie potwierdza** samodzielnej informacji
+o kierunku/kształcie: bardzo szeroki górny przedział nadal może mieszać
+różne wielkości Δ. Wymagana jest nowa, węziej dopasowana próba v0.4.
+
+W części B Λ zaalarmowała przed błędem tylko w `10/386` kwalifikujących
+się sekwencji (lead-recall `2,6%`); fałszywy alarm wystąpił w `7/214`
+bezbłędnych (`3,3%`). Confidence wyprzedziła `251/386` błędów (`65,0%`),
+ale alarmowała też w `113/214` bezbłędnych (`52,8%`). Ani samo Λ, ani
+baseline nie daje tu użytecznego, dobrze skalibrowanego wczesnego alarmu;
+bramka v0.3 dla Λ **nie przeszła**. Progów nie poprawiano po wyniku.
+
+**Wariant v0.4 — pięć dopasowanych poziomów Δ:** plan zapisano przed
+pierwszym przebiegiem w `prereg/ACTIVATION_PROBE_v0.4_SYNTHETIC_PLAN.md`;
+jego SHA-256 przed testem to
+`db98b5b09de2d3ae73e46e2de1b559d68baf73e4a4dd3fa73fd9ce3282c047ab`.
+Jest to lokalny zapis, nie niezależnie poświadczona prerejestracja.
+Kod nie zmienia v0.3. Uruchomienie:
+
+```powershell
+.\.venv\Scripts\python.exe examples\activation_probe_v04.py
+```
+
+W syntetycznym teście A było po 300 przypadków na każdy docelowy poziom
+Δ (1,5; 2,0; 2,5; 3,0; 4,0), bez wykluczeń technicznych. Każdy poziom
+zawierał ≥20 błędnych i ≥20 poprawnych predykcji. AUC `shape_js`
+wyniosło odpowiednio **0,816; 0,840; 0,933; 0,926; 0,944**, a AUC
+samej wielkości Δ **0,576; 0,531; 0,452; 0,477; 0,560**. Wszystkie
+trzy typy wejścia (pierwsza przewidziana klasa) również spełniły
+zamrożone kryterium: AUC `shape_js` 0,937–0,953. Zatem A przechodzi
+**bramkę kandydata do replikacji**, lecz nie jest wynikiem na danych
+rzeczywistych ani dowodem uniwersalnego operatora TIMDR. `shape_js`
+mierzy kształt zmiany **symetrycznie**, nie jej kierunek. Na poziomie
+Δ=1,5 prosty baseline confidence miał wyższe AUC (0,890 vs 0,816),
+więc nie ma podstaw twierdzić, że `shape_js` zawsze wnosi przewagę nad
+pewnością modelu.
+
+W B zastosowano **ten sam narastający generator i te same progi co v0.3**,
+tylko nowy seed. Λ wyprzedziła 6/390 błędów (1,5%), z 10/210 (4,8%)
+fałszywych alarmów; confidence wyprzedziła 254/390 (65,1%), ale dała
+101/210 (48,1%) fałszywych alarmów. Bramka wczesnego alarmu Λ ponownie
+**nie przeszła**. Następny uczciwy krok dla A to niezależny, rzeczywisty
+zbiór z dostępem do aktywacji i porównanie z confidence przy zamrożonym
+protokole; nie dostrajanie tego testu syntetycznego.
+
+**Paderborn v0.5–v0.7 — próba przejścia na rzeczywiste drgania:**
+v0.5 i v0.6 zatrzymały się na technicznym schemacie długości pomiaru;
+każda zmiana ma osobny plan i notatkę o przyczynie. W v0.7 odczyt
+train/calibration zadziałał, ale bramka mocy dała **0 błędów na 336
+przejściach kalibracyjnych** (model poprawny we wszystkich). Dlatego
+wynik diagnostyki aktywacji jest `INCONCLUSIVE` i holdout pozostaje
+zamknięty. Nie osłabiamy modelu po wyniku po to, by wytworzyć błędy.
+Szczegóły: `prereg/ACTIVATION_PROBE_v0.7_CALIBRATION_RESULT.md`.
+
+**UCI HAR v0.9 — niezależne rzeczywiste pomiary, aktywacje tej samej
+warstwy:** zamiast osłabiać model Paderborn użyto danych czujników
+telefonu od innych osób. Plan v0.8 nie ruszył z przyczyn technicznych
+(Windows Device Guard zablokował `scikit-learn` przed odczytem danych);
+v0.9 zamroził model NumPy 561→64→6. Odczytano wyłącznie oficjalne
+`train/`, rozdzielone po osobach na fit i calibration; `test/` pozostał
+nieotwarty. Bramka liczebności przeszła (193 błędne i 1442 poprawne
+pary u 5 osób), ale `shape_js` miał AUC **0,486**, wobec **0,709** dla
+niepewności modelu. To negatywna wskazówka kalibracyjna, nie wynik
+potwierdzający i nie powód do dostrajania po fakcie. Plan, kod i pełne
+liczby: `prereg/ACTIVATION_PROBE_v0.9_UCI_HAR_PLAN.md`,
+`activation_probe_uci_har.py`,
+`prereg/ACTIVATION_PROBE_v0.9_UCI_HAR_CALIBRATION_RESULT.md`.
+
+**HARTH v1.1–v1.2 — linia zamknięta, bez potwierdzenia przyrostu:**
+Na rzeczywistym zbiorze HARTH jednorazowy test pięciu odłożonych osób
+porównał diagnostykę błędu opartą na niepewności modelu i średniej
+wielkości zmiany aktywacji z wariantem dodającym `Δ-trajectory` oraz
+`Λ-instability`. Dla MLP AUC wyniosło **0,9211** (baza) i **0,9176**
+(rozszerzenie); różnica **−0,0034**, 95% przedział bootstrapu po osobach
+**[−0,0143; +0,0095]**. Zgodnie z regułą testu werdykt to
+**INCONCLUSIVE**: nie wykazano przewagi ani wiarygodnego pogorszenia.
+Późniejsze, wyłącznie eksploracyjne porównanie na dwóch osobach
+kalibracyjnych także nie wykazało przyrostu: różnica AUC wyniosła
+**−0,0048** dla MLP i **−0,0104** dla lekkiego modelu rekurencyjnego
+z pamięcią (reservoir). Tych dwóch osób nie traktujemy jako nowego
+niezależnego holdoutu.
+
+`shape_js` nie było testowane na HARTH; jego wcześniejszy wynik dotyczy
+UCI HAR v0.9. Na HARTH nie testowano też wyprzedzania błędów w czasie.
+Wniosek jest wąski: **w badanym ustawieniu nie potwierdzono dodatkowej
+wartości tych dwóch metryk ponad przyjętą bazę**. Nie dowodzi to braku
+jakiejkolwiek struktury diagnostycznej aktywacji ani nieskuteczności
+wszystkich architektur. Linię HARTH zamknięto bez dalszego strojenia;
+surowe archiwum i lokalne raporty usunięto na życzenie użytkownika.
+
 ## PROTECT-90: uczenie badawcze na przebiegach EMT
 
 Źródłem jest symulacja EMT (`TIMDR-Grid-Monitor`), nie pomiar polowej sieci
