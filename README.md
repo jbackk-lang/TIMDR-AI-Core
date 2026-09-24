@@ -40,7 +40,7 @@ Dokumentacja modeli: [Qwen 1.5B](GENERATIVE_MODEL_SETUP.md) i [pilot LoRA](TIMDR
 
 - [Archiwum wyników, ograniczeń i zamkniętych prób](ARCHIWUM_WYNIKOW_I_OGRANICZEN.md)
 - [Kapsuła wiedzy TIMDR](PHASE1C_TIMDR_KNOWLEDGE_CAPSULE.md)
-- [Reguła kalibracji i zamrożenia](//jbackk-lang/GIA-TIMDR/docs/theory/TIMDR_CALIBRATION_FREEZE_RULE.md)
-- [Specyfikacja gałęzi](//jbackk-lang/GIA-TIMDR/docs/theory/TIMDR_Branch_Specification.md)
+- [Reguła kalibracji i zamrożenia](/github.com/jbackk-lang/GIA-TIMDR/docs/theory/TIMDR_CALIBRATION_FREEZE_RULE.md)
+- [Specyfikacja gałęzi](/github.com/jbackk-lang/GIA-TIMDR/docs/theory/TIMDR_Branch_Specification.md)
 
 Wyniki eksperymentów są kandydatami badawczymi. Werdykt empiryczny wymaga osobnej prerejestracji i kontroli.
