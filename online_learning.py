@@ -77,6 +77,7 @@ def run_cycle(config_path: str | Path, state_path: str | Path) -> dict:
     state = _load_state(state_file)
     processed = 0
     refreshed = 0
+    rejected = []
     for seed in catalogs:
         catalog = seed if "items" in seed else json.loads(
             _read_url(seed["url"], BUDGET.max_online_document_bytes).decode("utf-8")
@@ -90,7 +91,14 @@ def run_cycle(config_path: str | Path, state_path: str | Path) -> dict:
             existing = state["documents"].get(document_key)
             if existing is not None and "top_terms" in existing:
                 continue
-            raw = _read_url(url, BUDGET.max_online_document_bytes)
+            try:
+                raw = _read_url(url, BUDGET.max_online_document_bytes)
+            except OnlineLearningError as exc:
+                # A missing README or a temporary remote error must not stop a
+                # whole personal catalog.  Keep only a local diagnostic; the
+                # item remains eligible for a later retry.
+                rejected.append({"catalog_id": seed["id"], "item_id": item_id, "url": url, "reason": str(exc)})
+                continue
             text = raw.decode("utf-8", errors="replace")
             terms = _tokens(text)
             if existing is not None:
@@ -114,6 +122,8 @@ def run_cycle(config_path: str | Path, state_path: str | Path) -> dict:
     return {
         "new_documents": processed,
         "refreshed_documents": refreshed,
+        "rejected_documents": len(rejected),
+        "rejected_items": rejected,
         "total_documents": len(state["documents"]),
         "holdout_accessed": False,
     }

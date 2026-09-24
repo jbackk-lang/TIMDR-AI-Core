@@ -394,6 +394,25 @@ hipotezy ani prerejestracji, nie uruchamia kodu z Internetu i nie ogłasza
 wyniku empirycznego. Jest to samouczenie grafu źródeł, a nie automatyczne
 uczenie modelu do formułowania twierdzeń.
 
+Ranking źródeł ma dwa poziomy: deklaracja roli z katalogu repozytoriów ma
+pierwszeństwo dla rdzenia i formalizmów (np. `TIMDR-Modal-Formalism` → K),
+a słowa z README są tylko pomocniczym routingiem kandydatów. Repo o roli
+`MULTI_BRANCH_TOOL`, `FRAMEWORK_CORE` lub niepewnym dopasowaniu nie jest
+automatycznie zamieniane w jedną gałąź ani hipotezę.
+
+### Własny katalog 62 repozytoriów
+
+Zestaw zweryfikowanych repozytoriów `jbackk-lang` można wygenerować bez
+przepisywania adresów. Generator tworzy ignorowany przez Git plik z README
+każdego repo; standardowy limit 16 nowych dokumentów na cykl oznacza, że
+katalog przechodzi etapami. Niedostępny README jest zapisany jako pominięty,
+nie blokuje pozostałych źródeł i może zostać ponowiony w późniejszym cyklu.
+
+```powershell
+.venv\Scripts\python.exe examples\build_personal_repo_catalog.py
+.\run.bat --skill-learn "online_catalogs.personal_repos.json"
+```
+
 Niezależnie od cyklu automatycznego, konkretny artefakt danych o znanym z
 góry SHA-256 można pobrać jawnie przez `download_declared_source()`
 (HTTPS-only, odmawia nadpisania istniejącego cache):

@@ -26,4 +26,5 @@ except (OnlineLearningError, EnvironmentPolicyError, KeyError, UnicodeError, jso
     raise SystemExit(f"Online cycle rejected: {exc}") from exc
 print(f"Online learning cycle complete: {report['new_documents']} new documents.")
 print(f"Refreshed source descriptions: {report['refreshed_documents']}")
+print(f"Unavailable items skipped: {report['rejected_documents']}")
 print(f"Known documents: {report['total_documents']} | holdout accessed: False")

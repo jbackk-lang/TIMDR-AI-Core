@@ -26,5 +26,6 @@ except (OnlineLearningError, EnvironmentPolicyError, KeyError, UnicodeError, jso
     raise SystemExit(f"Skill-guided cycle rejected: {exc}") from exc
 
 print(f"Skill-guided online cycle complete: {report['new_documents']} new documents.")
+print(f"Unavailable items skipped: {report['rejected_documents']}")
 print(f"Candidate reading cards: {report['candidate_cards']} | holdout accessed: False")
 print(f"Local report: {report['report_path']}")
