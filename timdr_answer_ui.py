@@ -23,7 +23,7 @@ class App(tk.Tk):
         self.configure(padx=14, pady=14, bg="#111827")
 
         tk.Label(self, text="TIMDR Answer Engine", fg="#f9fafb", bg="#111827", font=("Segoe UI", 16, "bold")).pack(anchor="w")
-        tk.Label(self, text="Deterministyczna odpowiedź ze źródłem; bez Qwen i bez zgadywania.", fg="#cbd5e1", bg="#111827").pack(anchor="w", pady=(2, 12))
+        tk.Label(self, text="Claim Graph ustala status i źródła; lokalny Qwen + LoRA dodaje wyjaśnienie.", fg="#cbd5e1", bg="#111827").pack(anchor="w", pady=(2, 12))
         self.question = tk.Entry(self, font=("Segoe UI", 11))
         self.question.pack(fill="x")
         self.question.bind("<Return>", lambda _event: self.run())

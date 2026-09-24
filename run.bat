@@ -42,6 +42,7 @@ if /I "%~1"=="--online-rank" goto :online_rank
 if /I "%~1"=="--research-queue" goto :research_queue
 if /I "%~1"=="--paderborn-freeze" goto :paderborn_freeze
 if /I "%~1"=="--paderborn-schema" goto :paderborn_schema
+if /I "%~1"=="--qwen4b-download" goto :qwen4b_download
 
 echo.
 echo Uruchamiam szybkie demo protokolu.
@@ -213,6 +214,21 @@ exit /b %ERRORLEVEL%
 :paderborn_analysis_dependencies
 echo Brakuje numpy lub scipy dla technicznego odczytu MATLAB.
 echo Zainstaluj: .venv\Scripts\python.exe -m pip install -e ".[paderborn-analysis]"
+pause
+exit /b 3
+
+:qwen4b_download
+%PY% -c "import huggingface_hub" >nul 2>&1
+if errorlevel 1 goto :qwen4b_dependencies
+echo.
+echo Pobieram oficjalny Qwen3 4B Q4_K_M dla CPU i sprawdzam SHA-256...
+%PY% examples\download_qwen3_4b_gguf.py
+pause
+exit /b %ERRORLEVEL%
+
+:qwen4b_dependencies
+echo Brakuje huggingface_hub, potrzebnego tylko do pobrania modelu.
+echo Zainstaluj: .venv\Scripts\python.exe -m pip install huggingface_hub
 pause
 exit /b 3
 
