@@ -1,5 +1,7 @@
 # TIMDR-AI-Core
 
+https://doi.org/10.5281/zenodo.22945305
+
 Lokalny rdzeń do pracy z wiedzą i eksperymentami TIMDR. Łączy trzy rzeczy:
 
 - **Claim Graph**: ustala status odpowiedzi i jej źródła;
