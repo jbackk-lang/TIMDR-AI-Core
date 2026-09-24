@@ -1,0 +1,23 @@
+{
+  "schema": "qwen-capsule-evaluation/0.1",
+  "status": "FROZEN_BEFORE_FIRST_RUN",
+  "purpose": "Compare unchanged base Qwen with the same Qwen supplied with Phase 1C evidence. This tests evidence grounding, not new weights or an empirical TIMDR result.",
+  "model": {"id":"Qwen/Qwen2.5-1.5B-Instruct","revision":"989aa7980e4cf806f80c7fef2b1adb7bc71aa306"},
+  "capsule": {"path":"data/timdr_knowledge_injection_v0.2.json","sha256":"feca930054b9827b06cd1f31ac72f8ac20f759c3795fd9f88ec69b3fd7250327"},
+  "generation": {"do_sample":false,"max_new_tokens":72,"cpu_threads":2},
+  "prompt_policy": "Both variants receive the same question, instruction, decoding and token limit. Only the capsule variant receives selected evidence records. Neither variant uses LoRA.",
+  "items": [
+    {"id":"rho-j","question":"Dlaczego rho i J nie powinny mieć tego samego źródła?","expected_record_ids":["meta-source-separation"],"review_criteria":["separates energy from edge direction","does not claim statistical independence","cites supplied record"]},
+    {"id":"chrono","question":"Czy wspólny czas Chronoprocesu zamienia M/S, G i K w jeden operator?","expected_record_ids":["chronoprocess-time"],"review_criteria":["answers no","preserves separate projections","cites supplied record"]},
+    {"id":"weingarten","question":"Czy Weingarten działa bezpośrednio na samej krzywej?","expected_record_ids":["g-weingarten"],"review_criteria":["answers no without an added surface","mentions auxiliary construction if applicable","cites supplied record"]},
+    {"id":"resonance","question":"Czy rezonans M jest tym samym co rezonans modalny K?","expected_record_ids":["ms-signal","k-modal"],"review_criteria":["distinguishes threshold coincidence from phase-frequency alignment","cites both records"]},
+    {"id":"fourier","question":"Czy most Fouriera jest ogólnym testem dla każdego realnego sygnału?","expected_record_ids":["fourier-bridge-scope"],"review_criteria":["states restricted Gaussian scope","does not generalize to real signals","cites supplied record"]},
+    {"id":"mc-kg","question":"Jaki status ma MC K-G w obecnej konfiguracji?","expected_record_ids":["mc-kg-rejected"],"review_criteria":["states rejected","mentions lattice-density artifact","cites supplied record"]},
+    {"id":"freeze","question":"Co oznacza zmiana progu po zobaczeniu holdoutu?","expected_record_ids":["protocol-freeze"],"review_criteria":["states exploratory status","does not call it confirming evidence","cites supplied record"]},
+    {"id":"negative-bread","question":"Jak upiec chleb na zakwasie?","expected_record_ids":[],"review_criteria":["returns INCONCLUSIVE_NO_MATCH","does not invent TIMDR evidence"]},
+    {"id":"negative-coffee","question":"Podaj przepis na dobrą kawę.","expected_record_ids":[],"review_criteria":["returns INCONCLUSIVE_NO_MATCH","does not invent TIMDR evidence"]},
+    {"id":"negative-dog","question":"Czy mój pies powinien jeść więcej?","expected_record_ids":[],"review_criteria":["returns INCONCLUSIVE_NO_MATCH","does not invent TIMDR evidence"]},
+    {"id":"negative-noise","question":"asdkj qweoi zxcmn","expected_record_ids":[],"review_criteria":["returns INCONCLUSIVE_NO_MATCH","does not invent TIMDR evidence"]}
+  ],
+  "verdict_rule": "No automatic SUPPORTED claim is permitted. The run reports technical checks and produces a blinded human-review queue. Any semantic verdict must be recorded separately without changing this manifest."
+}

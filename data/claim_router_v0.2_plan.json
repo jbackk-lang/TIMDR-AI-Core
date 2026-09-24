@@ -1,0 +1,22 @@
+{
+  "schema": "claim-router/0.2",
+  "status": "FROZEN_BEFORE_TRAINING",
+  "parent_result": "claim_router v0.1: 8/9 learned calibration accuracy, 7/9 agreement with Claim Graph; holdout unread",
+  "changes": ["normalize all holdout inflections to token holdout", "append observed v0.1 calibration only to development training", "add neutral out-of-scope examples", "return INCONCLUSIVE_LOW_CONFIDENCE below margin 1.0"],
+  "extra_train": [
+    ["Ile soli do zupy?","INCONCLUSIVE_NO_MATCH"],["Jak upiec chleb na zakwasie?","INCONCLUSIVE_NO_MATCH"],["Jak posprzątać pokój?","INCONCLUSIVE_NO_MATCH"],["Czy kot może pić mleko?","INCONCLUSIVE_NO_MATCH"],
+    ["Czy wolno stroić po holdoucie?","freeze-holdout"],["Czy po holdoucie można zmienić okno?","freeze-holdout"],["Czy korekta po holdoucie dalej potwierdza hipotezę?","freeze-holdout"],
+    ["Czy MC K-G jest potwierdzony?","mc-kg-rejected"],["Czy trasa PCA po ocenie jest nadal zamrożona?","freeze-holdout"]
+  ],
+  "calibration": [
+    ["Czy po zmianie progu po holdoucie wynik dalej jest potwierdzający?","freeze-holdout"],["Czy formę holdoucie należy traktować jak holdout?","freeze-holdout"],
+    ["Czy kanał rho opisuje kierunek krawędzi?","rho-j-separate"],["Czy J jest liczony z energii?","rho-j-separate"],
+    ["Czy ten sam zegar usuwa różnicę M/S i G?","chrono-separate"],["Czy można użyć Weingartena bez powierzchni pomocniczej?","weingarten-surface"],
+    ["Czy synchronizacja faz jest tym samym co rezonans progowy?","resonance-distinct"],["Czy reguła Gaussa jest uniwersalna dla drgań?","fourier-scoped"],
+    ["Jak ugotować ryż?","INCONCLUSIVE_NO_MATCH"],["Czy warto kupić rower?","INCONCLUSIVE_NO_MATCH"]
+  ],
+  "holdout": [
+    ["Czy zmiana definicji po wyniku zachowuje status potwierdzenia?","freeze-holdout"],["Czy zbieżność krawędzi i energia są tym samym kanałem?","rho-j-separate"],["Czy G i K stają się jedną dziedziną dzięki czasowi?","chrono-separate"],["Czy sama linia ma operator kształtu powierzchni?","weingarten-surface"],["Czy modalne wyrównanie faz to koincydencja anomalii?","resonance-distinct"],["Czy warunek Fouriera udowodniono dla dowolnych danych realnych?","fourier-scoped"],["Czy MC K-G działa jako selektor?","mc-kg-rejected"],["Jak naprawić rower?","INCONCLUSIVE_NO_MATCH"]
+  ],
+  "gate": "Do not read holdout until learned calibration accuracy and logic agreement are both 1.0, and every logical answer remains graph-authoritative."
+}

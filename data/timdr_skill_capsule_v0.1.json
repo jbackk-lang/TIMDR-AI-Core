@@ -1,0 +1,59 @@
+{
+  "schema": "timdr-skill-capsule/0.1",
+  "source": {
+    "path": "C:/Users/jback/Downloads/a/GIA-TIMDR/SKILL_timdr-signal-framework.md",
+    "sha256": "1f48dd0d31e1ea32188d20e498bb5551e96a2db65d88259021a47c799ec1dbbb",
+    "read_on": "2026-09-24"
+  },
+  "purpose": "Compact, source-linked knowledge records for TIMDR-AI-Core. This is evidence for a logical gate, not a prompt that authorizes an AI to create empirical results.",
+  "records": [
+    {
+      "id": "ai-role-filter",
+      "level": "interpretacja AI",
+      "claim": "AI may enforce preregistration, control, branch separation, definition consistency and falsification reporting; it is not a mathematical or empirical authority and cannot promote a result to SUPPORTED.",
+      "source_section": "0"
+    },
+    {
+      "id": "claim-levels",
+      "level": "methodology",
+      "claim": "Every claim must be labeled as mathematics, code, empirical result, or AI interpretation; only reproducible frozen empirical work can establish empirical status.",
+      "source_section": "0"
+    },
+    {
+      "id": "four-branches-separate",
+      "level": "formalism",
+      "claim": "M/S, G, K and META-DYNAMICS are distinct branches with their own objects and operators; shared names do not identify the objects.",
+      "source_section": "5"
+    },
+    {
+      "id": "chronoprocess-projections",
+      "level": "formalism",
+      "claim": "Chronoprocess supplies one time carrier and separate M/S, G and K projections; it does not merge their operators.",
+      "source_section": "7"
+    },
+    {
+      "id": "protocol-freeze-skill",
+      "level": "methodology",
+      "claim": "Definitions and thresholds are preregistered before final-test data; calibration on disjoint train/calibration data is allowed, while post-holdout changes are exploratory.",
+      "source_section": "3"
+    },
+    {
+      "id": "selector-not-diagnostic",
+      "level": "methodology",
+      "claim": "A diagnostic evaluated on an independently chosen candidate is not thereby a selector for unlabeled candidates.",
+      "source_section": "15"
+    },
+    {
+      "id": "fourier-scope-skill",
+      "level": "empirical scope",
+      "claim": "The Fourier M/S-K bridge is exact for a single ideal Gaussian impulse and is not established as a diagnostic for arbitrary real events.",
+      "source_section": "17"
+    },
+    {
+      "id": "mc-kg-artifact-skill",
+      "level": "empirical result",
+      "claim": "The current MC K-G configuration is rejected because lattice-density near the ground state can create a high base rate unrelated to signal structure.",
+      "source_section": "22"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "timdr-claim-graph/0.1",
+  "purpose": "Deterministic logical gate for source-backed TIMDR claims. It decides status and scope before any language model is asked to phrase an answer.",
+  "capsule": {"path":"data/timdr_knowledge_injection_v0.2.json","sha256":"feca930054b9827b06cd1f31ac72f8ac20f759c3795fd9f88ec69b3fd7250327"},
+  "skill_capsule": {"path":"data/timdr_skill_capsule_v0.1.json","source_sha256":"1f48dd0d31e1ea32188d20e498bb5551e96a2db65d88259021a47c799ec1dbbb"},
+  "nodes": [
+    {"id":"rho-j-separate","record_ids":["meta-source-separation"],"requires":["energy source for rho","edge-direction source for J"],"forbids":["rho and J are statistically independent"],"verdict":"DEFINED_WITH_LIMIT"},
+    {"id":"chrono-separate","record_ids":["chronoprocess-time"],"requires":["shared time index","separate projections"],"forbids":["M/S G and K are one operator"],"verdict":"DEFINED_WITH_LIMIT"},
+    {"id":"weingarten-surface","record_ids":["g-weingarten"],"requires":["regular surface or explicit auxiliary ribbon/tube"],"forbids":["Weingarten acts directly on any curve"],"verdict":"DEFINED_WITH_LIMIT"},
+    {"id":"resonance-distinct","record_ids":["ms-signal","k-modal"],"requires":["M is threshold coincidence","K is frequency-phase alignment"],"forbids":["M resonance equals K modal resonance"],"verdict":"DISTINCT_OBJECTS"},
+    {"id":"fourier-scoped","record_ids":["fourier-bridge-scope"],"requires":["single ideal Gaussian impulse"],"forbids":["general diagnostic for arbitrary real signals"],"verdict":"SCOPE_LIMITED"},
+    {"id":"mc-kg-rejected","record_ids":["mc-kg-rejected"],"requires":["lattice-density artifact"],"forbids":["MC K-G is confirmed","MC K-G is a reliable selector","MC K-G jest potwierdzony","MC K-G jest wiarygodnym selektorem"],"verdict":"REJECTED_CURRENT_FORM"},
+    {"id":"mc-msg-diagnostic","record_ids":["mc-msg-diagnostic"],"requires":["diagnostic not selector","domain-qualified evidence"],"forbids":["universal law","validated selector on unlabeled data"],"verdict":"ESTABLISHED_DIAGNOSTIC_DOMAIN_QUALIFIED"},
+    {"id":"freeze-holdout","record_ids":["protocol-freeze"],"requires":["new version is exploratory after holdout"],"forbids":["changed post-holdout threshold confirms original plan"],"verdict":"EXPLORATORY_AFTER_HOLDOUT"},
+    {"id":"gia-frozen-path","record_ids":["gia-frozen-path"],"requires":["calibration-derived PCA reference","frozen centre direction and radius before evaluation"],"forbids":["GIA selection alone proves modal resonance","refit PCA on evaluated data without changing the reference"],"verdict":"FROZEN_REFERENCE_REQUIRED"},
+    {"id":"ai-epistemic-filter","record_ids":["ai-role-filter","claim-levels"],"requires":["explicit claim level","reproducible evidence for empirical status"],"forbids":["AI interpretation establishes SUPPORTED","AI is the empirical authority"],"verdict":"EPISTEMIC_FILTER_ONLY"}
+  ]
+}

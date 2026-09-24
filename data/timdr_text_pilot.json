@@ -1,0 +1,16 @@
+{
+  "schema": "timdr-text-pilot/1",
+  "purpose": "Small human-readable, assistant-authored CPU feasibility dataset, grounded in local documentation. Evaluation paraphrases are held out from optimization, not an independent scientific benchmark.",
+  "train": [
+    {"id": "train-branches", "question": "Jakie są cztery gałęzie TIMDR?", "answer": "M/S opisuje sygnał, G geometrię, K modalność, a META-DYNAMICS stan agregatowy. Każda gałąź ma własne obiekty i operatory.", "source": "docs/theory/TIMDR_Branch_Specification.md"},
+    {"id": "train-time", "question": "Co daje Chronoproces gałęziom TIMDR?", "answer": "Chronoproces daje M/S, G i K wspólny indeks czasu T. Zachowuje odrębność sygnału, geometrii i modalności.", "source": "docs/theory/TIMDR_Chronoprocess.md"},
+    {"id": "train-calibration", "question": "Kiedy wolno dostrajać model w protokole TIMDR?", "answer": "W etapie train/calibration, przed zamrożeniem planu i oceną holdoutu. Zmiana po obejrzeniu holdoutu jest eksploracją.", "source": "docs/theory/TIMDR_CALIBRATION_FREEZE_RULE.md"},
+    {"id": "train-energy", "question": "Jak zachować energię przy przejściu z grafu zdarzeń do sygnału?", "answer": "W pełnym binningu sumę energii zdarzeń w koszyku dzielimy przez jego szerokość. Suma wartości sygnału razy szerokości koszyków zachowuje energię.", "source": "docs/theory/TIMDR_Signal_From_EventGraph.md"},
+    {"id": "train-surface", "question": "Czy operator Weingartena działa na samej krzywej?", "answer": "Wymaga regularnej powierzchni. Z krzywej można zbudować pomocniczą wstęgę lub rurę; wynik zależy też od parametrów tej konstrukcji.", "source": "docs/theory/TIMDR_Geometry_From_EventGraph.md"},
+    {"id": "train-meta", "question": "Co mierzą rho i J w adapterze grafu zdarzeń?", "answer": "Rho mierzy frakcję odchyleń energii, a J zgodność kierunków krawędzi z torem. Mają różne źródła; nie dowodzi to niezależności statystycznej.", "source": "docs/theory/TIMDR_EventGraph_Branch_Construction.md"}
+  ],
+  "evaluation": [
+    {"id": "eval-branches", "question": "Wymień gałęzie TIMDR wraz z ich dziedzinami.", "answer": "M/S — sygnał; G — geometria; K — modalność; META-DYNAMICS — dynamika agregatowa.", "source": "docs/theory/TIMDR_Branch_Specification.md"},
+    {"id": "eval-time", "question": "Czy wspólny czas w Chronoprocesie utożsamia operatory M/S, G i K?", "answer": "Nie. Wspólny indeks czasu pozwala je zestawiać, zachowując odrębność operatorów każdej gałęzi.", "source": "docs/theory/TIMDR_Chronoprocess.md"}
+  ]
+}

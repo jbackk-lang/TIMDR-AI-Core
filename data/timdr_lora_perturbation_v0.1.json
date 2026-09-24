@@ -1,0 +1,32 @@
+{
+  "schema": "timdr-lora-perturbation/0.1",
+  "purpose": "Fixed inference robustness probes; not a factual benchmark.",
+  "generation_tokens": 48,
+  "prompts": [
+    {
+      "id": "clean-branch-question",
+      "kind": "clean",
+      "text": "Jakie są cztery gałęzie TIMDR?"
+    },
+    {
+      "id": "typo-branch-question",
+      "kind": "typo",
+      "text": "Jakie sa cztery galezie TIMDR?"
+    },
+    {
+      "id": "syllable-noise",
+      "kind": "nonsense",
+      "text": "donarzneteganegamradarzenenezmonezarzdouturokomronezezb dommrrocnnninnnninnacjrokm stu stestu stutu stetesturokmrokdoścroste stegrokdoę stennnnnenetu stututowwproutututę stistuoę."
+    },
+    {
+      "id": "repeated-token-noise",
+      "kind": "repetition",
+      "text": "TIMDR TIMDR TIMDR TIMDR TIMDR co co co co?"
+    },
+    {
+      "id": "unrelated-polish-question",
+      "kind": "unrelated",
+      "text": "Jak upiec chleb na zakwasie?"
+    }
+  ]
+}

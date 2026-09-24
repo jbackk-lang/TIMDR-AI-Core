@@ -1,0 +1,86 @@
+{
+  "schema": "timdr-knowledge-injection/0.1",
+  "purpose": "Frozen, source-backed knowledge capsule for Phase 1B. It does not change model weights.",
+  "records": [
+    {
+      "id": "branch-ms",
+      "branch": "M/S",
+      "modality": "signal",
+      "operator": "anomaly / defect / resonance M / signal twist",
+      "claim": "Gałąź M/S opisuje sygnały czasowe. Jej operatory nie są automatycznie operatorami geometrii ani modalności.",
+      "source": "docs/theory/TIMDR_Branch_Specification.md"
+    },
+    {
+      "id": "branch-g",
+      "branch": "G",
+      "modality": "geometry",
+      "operator": "curvature / normals / Weingarten",
+      "claim": "Gałąź G działa na geometrii krzywych i powierzchni. Klasyczny operator Weingartena wymaga regularnej powierzchni; krzywa może być podstawą konstrukcji pomocniczej.",
+      "source": "docs/theory/TIMDR_Geometry_From_EventGraph.md"
+    },
+    {
+      "id": "branch-k",
+      "branch": "K",
+      "modality": "modal",
+      "operator": "frequency / phase / modal resonance",
+      "claim": "Gałąź K opisuje modalność przez częstotliwość, fazę i rezonans modalny. Nie jest tym samym obiektem co rezonans M sygnału.",
+      "source": "docs/theory/TIMDR_Branch_Specification.md"
+    },
+    {
+      "id": "branch-meta",
+      "branch": "META-DYNAMICS",
+      "modality": "aggregate dynamics",
+      "operator": "MetaState(Lambda, tau, rho, J)",
+      "claim": "META-DYNAMICS jest odrębną gałęzią agregatową. Rho i J muszą zachować rozłączne źródła; wspólny symbol nie dowodzi niezależności statystycznej.",
+      "source": "docs/theory/TIMDR_EventGraph_Branch_Construction.md"
+    },
+    {
+      "id": "chronoprocess",
+      "branch": "Chronoprocess",
+      "modality": "time alignment",
+      "operator": "Xi = (T, x, Gamma, phi)",
+      "claim": "Chronoproces daje M/S, G i K wspólny indeks czasu T, zachowując odrębność ich rzutów i operatorów.",
+      "source": "docs/theory/TIMDR_Chronoprocess.md"
+    },
+    {
+      "id": "protocol-freeze",
+      "branch": "Protocol",
+      "modality": "epistemic control",
+      "operator": "train/calibration freeze -> holdout",
+      "claim": "Parametry wolno ustalać podczas train/calibration. Po obejrzeniu holdoutu zmiana jest eksploracją, a nie potwierdzającą oceną zamrożonego planu.",
+      "source": "docs/theory/TIMDR_CALIBRATION_FREEZE_RULE.md"
+    }
+  ],
+  "holdout": [
+    {
+      "id": "holdout-rho-j",
+      "question": "Dlaczego rho i J nie powinny mieć tego samego źródła?",
+      "required_record_ids": ["branch-meta"],
+      "required_terms": ["rozłączne", "źródła"]
+    },
+    {
+      "id": "holdout-time",
+      "question": "Czy wspólny czas Chronoprocesu zamienia M/S, G i K w jeden operator?",
+      "required_record_ids": ["chronoprocess"],
+      "required_terms": ["odrębność", "operator"]
+    },
+    {
+      "id": "holdout-weingarten",
+      "question": "Czy Weingarten działa bezpośrednio na samej krzywej?",
+      "required_record_ids": ["branch-g"],
+      "required_terms": ["powierzchni"]
+    },
+    {
+      "id": "holdout-resonance",
+      "question": "Czy rezonans M jest tym samym co rezonans modalny K?",
+      "required_record_ids": ["branch-ms", "branch-k"],
+      "required_terms": ["nie", "modal"]
+    },
+    {
+      "id": "holdout-freeze",
+      "question": "Co oznacza zmiana progu po zobaczeniu holdoutu?",
+      "required_record_ids": ["protocol-freeze"],
+      "required_terms": ["eksploracją"]
+    }
+  ]
+}

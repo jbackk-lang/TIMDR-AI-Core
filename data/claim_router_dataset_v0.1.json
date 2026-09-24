@@ -1,0 +1,22 @@
+{
+  "schema": "claim-router-dataset/0.1",
+  "status": "FROZEN_BEFORE_FIRST_TRAINING",
+  "task": "question -> claim graph node; the learned route never determines the verdict",
+  "train": [
+    ["Czy rho ma inne źródło niż J?","rho-j-separate"],["Skąd bierze się rho, a skąd J?","rho-j-separate"],["Czy energia i kierunek są rozdzielone w META?","rho-j-separate"],
+    ["Czy Chronoproces scala gałęzie?","chrono-separate"],["Co robi wspólny czas Chronoprocesu?","chrono-separate"],["Czy T tworzy jeden operator M S G K?","chrono-separate"],
+    ["Czy operator Weingartena działa na krzywej?","weingarten-surface"],["Czy do Weingartena potrzebna jest powierzchnia?","weingarten-surface"],["Czy rura z krzywej jest konstrukcją pomocniczą?","weingarten-surface"],
+    ["Czy rezonans M i K są identyczne?","resonance-distinct"],["Czym różni się rezonans sygnałowy od modalnego?","resonance-distinct"],["Czy faza i próg oznaczają ten sam rezonans?","resonance-distinct"],
+    ["Czy relacja Fouriera działa na dowolnym sygnale?","fourier-scoped"],["Jaki jest zakres mostu Fouriera?","fourier-scoped"],["Czy idealny impuls Gaussa jest warunkiem mostu?","fourier-scoped"],
+    ["Czy MC K G przeszedł test?","mc-kg-rejected"],["Czy most Mobius K G jest selektorem?","mc-kg-rejected"],["Dlaczego MC K-G odrzucono?","mc-kg-rejected"],
+    ["Jaki status ma Z0 i Gi?","mc-msg-diagnostic"],["Czy MC M S G jest uniwersalnym prawem?","mc-msg-diagnostic"],["Czy most Z0 Gi wybiera dane bez etykiet?","mc-msg-diagnostic"],
+    ["Czy po holdoucie wolno zmienić próg?","freeze-holdout"],["Co robić po zmianie okna po teście końcowym?","freeze-holdout"],["Czy nowy próg po holdoucie potwierdza plan?","freeze-holdout"],
+    ["Jak upiec chleb?","INCONCLUSIVE_NO_MATCH"],["Jaka jest pogoda jutro?","INCONCLUSIVE_NO_MATCH"],["Podaj przepis na kawę.","INCONCLUSIVE_NO_MATCH"]
+  ],
+  "calibration": [
+    ["Czy rho i J są niezależne?","rho-j-separate"],["Czy Chronoproces miesza operatory?","chrono-separate"],["Czy Weingarten wymaga powierzchni?","weingarten-surface"],["Czy rezonans modalny jest rezonansem M?","resonance-distinct"],["Czy Fouriera dotyczy realnych łożysk bez ograniczeń?","fourier-scoped"],["Czy MC K-G jest wiarygodny?","mc-kg-rejected"],["Czy Z0-Gi jest tylko diagnostyką?","mc-msg-diagnostic"],["Czy wolno stroić po holdoucie?","freeze-holdout"],["Ile soli do zupy?","INCONCLUSIVE_NO_MATCH"]
+  ],
+  "holdout": [
+    ["Czy odchylenie energii i zgodność krawędzi to ten sam kanał?","rho-j-separate"],["Czy wspólny indeks czasu utożsamia G z K?","chrono-separate"],["Czy sama trajektoria wystarcza dla klasycznego Weingartena?","weingarten-surface"],["Czy koincydencja anomalii to synchronizacja faz?","resonance-distinct"],["Czy ograniczenie Fouriera można przenieść na każdy transjent?","fourier-scoped"],["Czy widmo Möbiusa potwierdziło MC K-G?","mc-kg-rejected"],["Czy efekt Z0-Gi działa jako selektor?","mc-msg-diagnostic"],["Czy poprawka po wyniku jest potwierdzeniem?","freeze-holdout"],["Jak zadbać o kota?","INCONCLUSIVE_NO_MATCH"]
+  ]
+}

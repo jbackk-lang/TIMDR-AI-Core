@@ -1,0 +1,13 @@
+{
+  "schema": "qwen-capsule-calibration/0.2",
+  "status": "FROZEN_BEFORE_RUN",
+  "reason_for_new_version": "v0.1 returned INCONCLUSIVE_NO_MATCH even when evidence records were present. v0.2 changes only the evidence-present prompt format and first tests it on synthetic controls; it does not reopen v0.1.",
+  "model": {"id":"Qwen/Qwen2.5-1.5B-Instruct","revision":"989aa7980e4cf806f80c7fef2b1adb7bc71aa306","lora":"none"},
+  "generation": {"do_sample":false,"max_new_tokens":32,"cpu_threads":2},
+  "controls": [
+    {"id":"positive-id","kind":"positive","prompt":"DOWÓD: ID=demo. FAKT: Rekord jest oznaczony demo. Pytanie: Jaki jest identyfikator rekordu? Odpowiedz: demo. Następna linia musi brzmieć dokładnie: Evidence: [demo]","required_terms":["demo","Evidence: [demo]"]},
+    {"id":"positive-fact","kind":"positive","prompt":"DOWÓD: ID=kolor. FAKT: W tej kontroli właściwy kolor to zielony. Pytanie: Jaki kolor podaje dowód? Odpowiedz jednym słowem, potem nowa linia: Evidence: [kolor]","required_terms":["zielony","Evidence: [kolor]"]},
+    {"id":"negative-empty","kind":"negative","prompt":"Brak rekordu dowodowego dla pytania o chleb. Odpowiedz dokładnie: INCONCLUSIVE_NO_MATCH","required_terms":["INCONCLUSIVE_NO_MATCH"]}
+  ],
+  "gate": "PASS only when all three controls contain every required term. If any control fails, do not open the v0.2 holdout."
+}

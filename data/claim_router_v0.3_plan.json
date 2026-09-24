@@ -1,0 +1,15 @@
+{
+  "schema":"claim-router/0.3","status":"FROZEN_BEFORE_TRAINING",
+  "parent_results":"v0.1 and v0.2 calibration failures; no holdout was accessed",
+  "algorithm":"character 3-5 gram cosine prototype classifier; unknown below similarity 0.12; Claim Graph remains verdict authority",
+  "development_sources":["claim_router_dataset_v0.1 train+calibration","claim_router_v0.2 extra_train+calibration"],
+  "calibration":[
+    ["Czy strojenie po holdoucie nadal potwierdza test?","freeze-holdout"],["Czy zmiana progu po holdoucie jest eksploracją?","freeze-holdout"],
+    ["Czy J ma źródło w energii?","rho-j-separate"],["Czy rho pochodzi z kierunku krawędzi?","rho-j-separate"],
+    ["Czy wspólny czas scala M/S i G?","chrono-separate"],["Czy Weingarten wymaga regularnej powierzchni?","weingarten-surface"],
+    ["Czy rezonans modalny K równa się rezonansowi M?","resonance-distinct"],["Czy most Fouriera jest ogólny dla realnych drgań?","fourier-scoped"],
+    ["Czy MC K-G jest wiarygodnym selektorem?","mc-kg-rejected"],["Jak ustawić temperaturę piekarnika?","INCONCLUSIVE_NO_MATCH"]
+  ],
+  "holdout":[["Czy korekta po holdoucie tworzy nową wersję?","freeze-holdout"],["Czy energia i kierunek krawędzi są jednym źródłem?","rho-j-separate"],["Czy indeks T usuwa granice gałęzi?","chrono-separate"],["Czy krzywa jest automatycznie powierzchnią?","weingarten-surface"],["Czy wyrównanie faz jest rezonansem progowym?","resonance-distinct"],["Czy ograniczenie Fouriera obejmuje każde zdarzenie?","fourier-scoped"],["Czy MC K-G został zaakceptowany?","mc-kg-rejected"],["Jak zrobić herbatę?","INCONCLUSIVE_NO_MATCH"]],
+  "gate":"Open no holdout unless calibration learned accuracy and logic agreement are both 1.0."
+}

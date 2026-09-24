@@ -19,9 +19,11 @@ paderborn = ["rarfile>=4.5"]
 paderborn-analysis = ["rarfile>=4.5", "numpy>=1.24", "scipy>=1.10"]
 operators = ["numpy>=1.24"]
 uci-har = ["numpy>=1.24"]
+text = ["sentence-transformers>=5,<6", "transformers>=4.41,<5"]
+text-training = ["transformers>=4.41,<5", "peft>=0.14,<1", "accelerate>=1,<2", "psutil>=5"]
 
 [tool.setuptools]
-py-modules = ["timdr_ai_core", "timdr_operators", "neural_network", "activation_diagnostics", "activation_diagnostics_v02", "activation_diagnostics_v03", "activation_probe_uci_har", "learning_sandbox", "protect90_learning_adapter", "protect90_waveform_learning", "protect90_waveform_nn_learning", "environment_policy", "online_learning", "online_ranker", "research_queue", "paderborn_prereg", "paderborn_extractor"]
+py-modules = ["timdr_ai_core", "timdr_operators", "neural_network", "activation_diagnostics", "activation_diagnostics_v02", "activation_diagnostics_v03", "activation_probe_uci_har", "learning_sandbox", "protect90_learning_adapter", "protect90_waveform_learning", "protect90_waveform_nn_learning", "environment_policy", "online_learning", "skill_guided_learning", "online_ranker", "research_queue", "paderborn_prereg", "paderborn_extractor"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

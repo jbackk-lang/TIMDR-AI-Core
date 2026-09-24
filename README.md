@@ -1,5 +1,9 @@
 # TIMDR-AI-Core
 
+Encoder polskiego tekstu: [model, pobranie i test lokalny na CPU](TEXT_ENCODER_SETUP.md).
+Model generujący do dalszego dostrajania: [Qwen 1.5B — pliki i plan pracy na CPU](GENERATIVE_MODEL_SETUP.md).
+Pierwszy trening: [mały adapter LoRA na CPU — dane, uruchomienie i raporty](TIMDR_LORA_CPU_PILOT.md).
+
 Python, biblioteka standardowa + opcjonalnie numpy/pandas/scipy/rarfile.
 Wymaga Python 3.10+.
 
@@ -373,6 +377,7 @@ modyfikuje prerejestracji i nie ustanawia wyniku TIMDR.
 
 ```powershell
 .\run.bat --online-learn "online_catalogs.json"    # skopiuj wcześniej online_catalogs.template.json
+.\run.bat --skill-learn "online_catalogs.json"     # pobiera źródła i tworzy tylko kandydatów do lektury wg kapsuły TIMDR
 .\run.bat --online-rank                            # trasuje zebrane źródła po słowach kluczowych do 4 gałęzi TIMDR
 .\run.bat --research-queue                         # buduje kolejkę kandydatów, nie tworzy hipotez ani mostów
 ```
@@ -380,6 +385,14 @@ modyfikuje prerejestracji i nie ustanawia wyniku TIMDR.
 Stan zapisuje się w ignorowanym przez Git `external_cache/`. Ranking i
 kolejka badawcza to trasowanie/spis braków — nie stanowią wyniku badawczego
 ani mostu między gałęziami.
+
+`--skill-learn` dodaje drugi, równie ograniczony krok. Po pobraniu uruchamia
+`skill_guided_learning.py`, który korzysta z wersjonowanej kapsuły skilla
+GIA-TIMDR i tworzy karty **CANDIDATE_READING_ONLY**: źródło, jego SHA-256,
+proponowaną gałąź i dopasowane słowa. Nie zmienia `Claim Graph`, nie tworzy
+hipotezy ani prerejestracji, nie uruchamia kodu z Internetu i nie ogłasza
+wyniku empirycznego. Jest to samouczenie grafu źródeł, a nie automatyczne
+uczenie modelu do formułowania twierdzeń.
 
 Niezależnie od cyklu automatycznego, konkretny artefakt danych o znanym z
 góry SHA-256 można pobrać jawnie przez `download_declared_source()`

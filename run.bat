@@ -37,6 +37,7 @@ if /I "%~1"=="--protect90-waveform" goto :protect90_waveform_train
 if /I "%~1"=="--protect90-waveform-nn" goto :protect90_waveform_nn_train
 if /I "%~1"=="--external-source" goto :external_source
 if /I "%~1"=="--online-learn" goto :online_learn
+if /I "%~1"=="--skill-learn" goto :skill_learn
 if /I "%~1"=="--online-rank" goto :online_rank
 if /I "%~1"=="--research-queue" goto :research_queue
 if /I "%~1"=="--paderborn-freeze" goto :paderborn_freeze
@@ -155,6 +156,19 @@ exit /b %ERRORLEVEL%
 
 :online_learn_usage
 echo Uzycie: run.bat --online-learn "online_catalogs.json"
+pause
+exit /b 2
+
+:skill_learn
+if "%~2"=="" goto :skill_learn_usage
+echo.
+echo Pobieram jawnie zadeklarowane zrodla i buduje kandydatow wedlug kapsuly TIMDR...
+%PY% examples\skill_guided_learn.py "%~2"
+pause
+exit /b %ERRORLEVEL%
+
+:skill_learn_usage
+echo Uzycie: run.bat --skill-learn "online_catalogs.json"
 pause
 exit /b 2
 

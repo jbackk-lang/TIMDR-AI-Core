@@ -1,0 +1,14 @@
+{
+  "schema":"claim-router/0.4","status":"FROZEN_BEFORE_TRAINING",
+  "parent_result":"v0.3 learned accuracy 1.0 but logic agreement 0.9; the uncovered alias is now made explicit",
+  "new_logic_rule":"'wspólny czas' maps to Chronoprocess only with an explicit TIMDR branch token (M/S/G/K/gałąź)",
+  "calibration":[
+    ["Czy wspólny czas M/S i G scala gałęzie?","chrono-separate"],["Czy wspólny czas K i M/S tworzy jeden operator?","chrono-separate"],
+    ["Czy zmiana progu po holdoucie jest potwierdzeniem?","freeze-holdout"],["Czy J pochodzi z energii?","rho-j-separate"],
+    ["Czy Weingarten działa na dowolnej krzywej?","weingarten-surface"],["Czy rezonans K jest progiem anomalii?","resonance-distinct"],
+    ["Czy Fouriera działa bez ograniczeń na realnych danych?","fourier-scoped"],["Czy MC K-G jest zaakceptowany?","mc-kg-rejected"],
+    ["Jak ugotować makaron?","INCONCLUSIVE_NO_MATCH"],["Czy wspólny czas obiadu jest Chronoprocesem?","INCONCLUSIVE_NO_MATCH"]
+  ],
+  "holdout":[["Czy wspólny czas M/S, G i K usuwa różnice gałęzi?","chrono-separate"],["Czy wolno zmienić okno po holdoucie?","freeze-holdout"],["Czy rho jest kanałem kierunku?","rho-j-separate"],["Czy Weingarten potrzebuje powierzchni?","weingarten-surface"],["Czy faza modalna to rezonans M?","resonance-distinct"],["Czy most Fouriera jest uniwersalny?","fourier-scoped"],["Czy MC K-G jest diagnostyką?","mc-kg-rejected"],["Jak zrobić omlet?","INCONCLUSIVE_NO_MATCH"]],
+  "gate":"Open no holdout unless learned accuracy and graph agreement both equal 1.0."
+}
