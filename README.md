@@ -8,6 +8,23 @@ Lokalny rdzeń do pracy z wiedzą i eksperymentami TIMDR. Łączy trzy rzeczy:
 - **protokół TIMDR**: nie pozwala ogłosić wyniku `SUPPORTED` bez prerejestracji, kontroli i ewidencji;
 - **lokalne uczenie**: małe, odtwarzalne eksperymenty na CPU.
 
+## Wyjaśnienie zależności rdzenia od modelu
+
+TIMDR‑AI‑Core **nie generuje odpowiedzi** i **nie tworzy treści**.  
+Wszystkie odpowiedzi pochodzą wyłącznie z modelu (Qwen, Llama itd.).  
+Rdzeń działa na reprezentacji wygenerowanej przez model i ocenia ją według zasad TIMDR.
+
+To oznacza:
+
+- wynik zależy od tego, jak model został wytrenowany,
+- różne modele dają różne wektory i różne oceny,
+- rdzeń nie poprawia modeli — tylko je testuje,
+- model musi generować odpowiedzi tak, aby przechodziły przez rdzeń.
+
+Rdzeń jest **bramką kontrolną**, a nie warstwą generującą.  
+Model tworzy treść.  
+Rdzeń decyduje, czy ta treść jest stabilna, spójna i zgodna z protokołem.
+
 ## Uruchomienie okna dialogowego
 
 Kliknij [`run_answer_engine.bat`](run_answer_engine.bat). Okno najpierw sprawdza pytanie przez Claim Graph, a następnie może dodać krótkie wyjaśnienie lokalnego Qwen 1.5B z adapterem LoRA. Status, źródła i ograniczenia zawsze pochodzą z Claim Graph.
@@ -34,15 +51,3 @@ Pilot na sześciu zatwierdzonych parach pytanie–odpowiedź wykonał 12 kroków
 .\run.bat --graph
 .\run.bat --learn
 .\run.bat --online-rank
-```
-
-Dokumentacja modeli: [Qwen 1.5B](GENERATIVE_MODEL_SETUP.md) i [pilot LoRA](TIMDR_LORA_CPU_PILOT.md).
-
-## Dokumentacja i archiwum
-
-- [Archiwum wyników, ograniczeń i zamkniętych prób](ARCHIWUM_WYNIKOW_I_OGRANICZEN.md)
-- [Kapsuła wiedzy TIMDR](PHASE1C_TIMDR_KNOWLEDGE_CAPSULE.md)
-- Reguła kalibracji i zamrożenia: https://github.com/jbackk-lang/GIA-TIMDR/blob/main/docs/theory/TIMDR_CALIBRATION_FREEZE_RULE.md
-- Specyfikacja gałęzi: https://github.com/jbackk-lang/GIA-TIMDR/blob/main/docs/theory/TIMDR_Branch_Specification.md
-
-Wyniki eksperymentów są kandydatami badawczymi. Werdykt empiryczny wymaga osobnej prerejestracji i kontroli.
