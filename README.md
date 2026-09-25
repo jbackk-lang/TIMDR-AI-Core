@@ -2,11 +2,29 @@
 
 https://doi.org/10.5281/zenodo.22945305
 
-Lokalny rdzeń do pracy z wiedzą i eksperymentami TIMDR. Łączy trzy rzeczy:
+Lokalny rdzeń do pracy z wiedzą i eksperymentami TIMDR. Rdzeń jest elementem
+pośrednim między modelem generującym a warstwą decyzyjną TIMDR. Nie tworzy
+odpowiedzi — ocenia je i ustala ich status według zasad protokołu.
+
+Łączy trzy rzeczy:
 
 - **Claim Graph**: ustala status odpowiedzi i jej źródła;
 - **protokół TIMDR**: nie pozwala ogłosić wyniku `SUPPORTED` bez prerejestracji, kontroli i ewidencji;
 - **lokalne uczenie**: małe, odtwarzalne eksperymenty na CPU.
+
+## Gdzie działa rdzeń i do czego służy
+
+Rdzeń jest wstawiany **bezpośrednio za modelem** (Qwen, Llama itd.).
+Model generuje treść, a rdzeń ją ocenia. Wynik rdzenia decyduje:
+
+- czy odpowiedź jest stabilna,
+- czy jest spójna,
+- czy spełnia zasady TIMDR,
+- czy może przejść dalej jako kandydat badawczy.
+
+Rdzeń nie zastępuje modelu i nie poprawia jego treści. Wynik zależy od tego,
+jak model został wytrenowany. Rdzeń tylko sprawdza, czy odpowiedź modelu
+spełnia kryteria TIMDR. Jeśli nie — odpowiedź jest odrzucana.
 
 ## Wyjaśnienie zależności rdzenia od modelu
 
