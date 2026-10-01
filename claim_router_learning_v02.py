@@ -16,7 +16,7 @@ PLAN = ROOT / "data" / "claim_router_v0.2_plan.json"
 
 def tokens(text):
     raw = re.findall(r"[a-ząćęłńóśźż]+", text.lower())
-    normalized = ["holdout" if word.startswith("holdout") else word for word in raw]
+    normalized = ["holdout" if word.startswith(("holdout", "holdouc")) else word for word in raw]
     return normalized + [word[:5] for word in normalized if len(word) >= 5]
 
 

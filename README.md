@@ -12,13 +12,21 @@ odpowiedzi — ocenia je i ustala ich status według zasad protokołu.
 - **protokół TIMDR**: nie pozwala ogłosić wyniku `SUPPORTED` bez prerejestracji, kontroli i ewidencji;
 - **lokalne uczenie**: małe, odtwarzalne eksperymenty na CPU.
 
+## Aktualny przepływ TIMDR
+
+Rdzeń ma teraz jawny kontroler dwóch dróg: dla sygnałów oraz dla tekstu. Okno odpowiedzi wykonuje: **pytanie → źródła → kandydat modelu → kontrola publikacji**. Swobodny tekst modelu bez zweryfikowanego znaczenia nie trafia do odpowiedzi; pozostaje odpowiedź źródłowa. Model i jego trening nie zostały zmienione.
+
+W ścieżce sygnałowej kontroler wymaga adapterów: typ sygnału, pole, rezonans, sito, samokorekta i geometria. To infrastruktura do ich łączenia, nie gotowa uniwersalna analiza sygnału. Wynik empiryczny wymaga osobnego, wcześniej zamrożonego planu i przypisanych do niego wyników.
+
+[Opis zmian, API, testy i ograniczenia](TIMDR_CORE_WORKFLOW.md).
+
 ## Gdzie działa rdzeń i do czego służy
 
-Rdzeń jest wstawiany **bezpośrednio za modelem** (Qwen, Llama itd.).
-Model generuje treść, a rdzeń ją ocenia. Wynik rdzenia decyduje:
+W oknie odpowiedzi Claim Graph najpierw wybiera źródłową odpowiedź i status.
+Następnie model może zaproponować wyjaśnienie, które przechodzi kontrolę publikacji. Wynik rdzenia decyduje:
 
-- czy odpowiedź jest stabilna,
-- czy jest spójna,
+- czy istnieje pasujące twierdzenie w Claim Graph,
+- czy kandydat zachowuje zweryfikowaną odpowiedź,
 - czy spełnia zasady TIMDR,
 - czy może przejść dalej jako kandydat badawczy.
 
@@ -28,24 +36,24 @@ spełnia kryteria TIMDR. Jeśli nie — odpowiedź jest odrzucana.
 
 ## Wyjaśnienie zależności rdzenia od modelu
 
-TIMDR‑AI‑Core **nie generuje odpowiedzi** i **nie tworzy treści**.  
-Wszystkie odpowiedzi pochodzą wyłącznie z modelu (Qwen, Llama itd.).  
-Rdzeń działa na reprezentacji wygenerowanej przez model i ocenia ją według zasad TIMDR.
+TIMDR‑AI‑Core **nie generuje odpowiedzi** i **nie tworzy treści**.
+W oknie odpowiedzi treść źródłowa pochodzi z Claim Graph; model proponuje dodatkowe wyjaśnienie.
+Kontroler rozdziela propozycję modelu od źródeł, kontroli i werdyktu badawczego.
 
 To oznacza:
 
 - wynik zależy od tego, jak model został wytrenowany,
 - różne modele dają różne wektory i różne oceny,
 - rdzeń nie poprawia modeli — tylko je testuje,
-- model musi generować odpowiedzi tak, aby przechodziły przez rdzeń.
+- przejście bramki nie zastępuje niezależnej walidacji jakości modelu.
 
-Rdzeń jest **bramką kontrolną**, a nie warstwą generującą.  
-Model tworzy treść.  
+Rdzeń jest **bramką kontrolną**, a nie warstwą generującą.
+Model proponuje tekst; Claim Graph dostarcza odpowiedź źródłową.
 Rdzeń decyduje, czy ta treść jest stabilna, spójna i zgodna z protokołem.
 
 ## Uruchomienie okna dialogowego
 
-Kliknij [`run_answer_engine.bat`](run_answer_engine.bat). Okno najpierw sprawdza pytanie przez Claim Graph, a następnie może dodać krótkie wyjaśnienie lokalnego Qwen 1.5B z adapterem LoRA. Status, źródła i ograniczenia zawsze pochodzą z Claim Graph.
+Kliknij [`run_answer_engine.bat`](run_answer_engine.bat). Okno najpierw sprawdza pytanie przez Claim Graph, a następnie kontroluje propozycję lokalnego Qwen 1.5B z adapterem LoRA. Obecnie swobodne parafrazy są odrzucane. Status, źródła i ograniczenia zawsze pochodzą z Claim Graph.
 
 Pierwsze pytanie ładuje model do pamięci. Na tym komputerze potrzeba około 6,3 GB RAM i dwóch wątków CPU.
 

@@ -8,6 +8,7 @@ sys.path.insert(0, str(ROOT))
 
 from timdr_ai_core import (  # noqa: E402
     ControlResult,
+    Hypothesis,
     ProtocolCriteria,
     TestEvidence,
     TIMDR_AI_System,
@@ -25,7 +26,7 @@ cfg = {
     "name": "synthetic_protocol_demo",
     "description": "Demonstrates protocol states; it is not an empirical TIMDR run.",
     "effect_description": "Difference from a pre-defined background.",
-    "params": {"seed": 20260919, "dataset": "synthetic_demo_only"},
+    "params": {"seed": 20260919, "dataset": "synthetic_demo_only", "method": "synthetic demonstration test"},
 }
 
 system = TIMDR_AI_System(
@@ -34,18 +35,21 @@ system = TIMDR_AI_System(
 
 show("1. Missing controls", system.run({"signal": [1, 2, 3]}, cfg))
 
+plan = system.protocol.preregister(Hypothesis(cfg["name"], cfg["description"], cfg["effect_description"], cfg["params"]))
 controls = ControlResult(True, True, {"kind": "synthetic controls"})
 not_supported = system.run(
     {"signal": [1, 2, 3]}, cfg,
     controls=controls,
-    evidence=TestEvidence(0.20, 0.45, "synthetic demonstration test"),
+    evidence=TestEvidence(0.20, 0.45, "synthetic demonstration test", plan.fingerprint),
+    preregistration=plan,
 )
 show("2. Controls pass, evidence does not", not_supported)
 
 supported_demo = system.run(
     {"signal": [1, 2, 3]}, cfg,
     controls=controls,
-    evidence=TestEvidence(0.01, 0.45, "synthetic demonstration test"),
+    evidence=TestEvidence(0.01, 0.45, "synthetic demonstration test", plan.fingerprint),
+    preregistration=plan,
 )
 show("3. Technical API demonstration only", supported_demo)
 print("\nThe final line is not an empirical TIMDR result: its evidence is synthetic.")

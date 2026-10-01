@@ -35,9 +35,11 @@ def test_missing_controls_or_evidence_can_never_support_a_claim():
 
 def test_failed_negative_control_blocks_even_statistically_positive_evidence():
     protocol = TIMDRProtocol()
+    plan = protocol.preregister(Hypothesis("h", "d", "e", {"method": "Mann-Whitney U"}))
     result = protocol.run_test(
         ControlResult(positive_ok=True, negative_ok=False),
-        TestEvidence(0.0001, 0.9, "Mann-Whitney U"),
+        TestEvidence(0.0001, 0.9, "Mann-Whitney U", plan.fingerprint),
+        preregistration=plan,
     )
 
     assert result.verdict == "INCONCLUSIVE"
@@ -47,8 +49,9 @@ def test_supported_requires_passed_controls_significance_and_effect_size():
     protocol = TIMDRProtocol(ProtocolCriteria(alpha=0.05, min_abs_effect_size=0.30))
     controls = ControlResult(positive_ok=True, negative_ok=True)
 
-    weak = protocol.run_test(controls, TestEvidence(0.01, 0.20, "permutation"))
-    strong = protocol.run_test(controls, TestEvidence(0.01, 0.31, "permutation"))
+    plan = protocol.preregister(Hypothesis("h", "d", "e", {"method": "permutation"}))
+    weak = protocol.run_test(controls, TestEvidence(0.01, 0.20, "permutation", plan.fingerprint), preregistration=plan)
+    strong = protocol.run_test(controls, TestEvidence(0.01, 0.31, "permutation", plan.fingerprint), preregistration=plan)
 
     assert weak.verdict == "NOT_SUPPORTED"
     assert strong.verdict == "SUPPORTED"

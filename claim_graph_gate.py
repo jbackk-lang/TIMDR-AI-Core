@@ -59,7 +59,9 @@ def decide(question: str) -> Decision:
     _, nodes = _load()
     q = _words(question)
     chrono_alias = {"wspólny", "czas"} <= q and bool(q & {"m", "s", "g", "k", "gałęzie", "gałąź"})
-    if "chronoproces" in q or any(word.startswith("chronoproces") for word in q) or chrono_alias:
+    chrono_named = any(word.startswith("chronoproces") for word in q)
+    chrono_context = bool(q & {"timdr", "m", "s", "g", "k", "operator", "operatory", "rzuty"}) or len(q) <= 4
+    if (chrono_named and chrono_context) or chrono_alias:
         return _node(nodes, "chrono-separate", "Nie. Chronoproces daje wspólny indeks czasu, ale zachowuje odrębne rzuty i operatory M/S, G oraz K.")
     gia_alias = "gia" in q or "pca" in q or ("tor" in q and any(word.startswith(("zamroż", "referenc")) for word in q))
     if gia_alias:

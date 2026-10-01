@@ -9,6 +9,7 @@ pre-registered test result and passed positive and negative controls.
 
 from __future__ import annotations
 
+from math import isfinite
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 from hashlib import sha256
@@ -27,7 +28,7 @@ class ProtocolError(ValueError):
 def _canonical_json(value: Any) -> str:
     """Serialize a configuration deterministically or fail before preregistration."""
     try:
-        return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+        return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
     except (TypeError, ValueError) as exc:
         raise ProtocolError("Preregistration parameters must be JSON-serializable.") from exc
 
@@ -46,6 +47,7 @@ class Preregistration:
     fingerprint: str
     frozen_params: Mapping[str, Any]
     protocol_version: str = "timdr-ai-core/1"
+    criteria: ProtocolCriteria | None = None
 
 
 @dataclass(frozen=True)
@@ -73,6 +75,7 @@ class TestEvidence:
     p_value: float
     effect_size: float
     method: str
+    preregistration_fingerprint: str | None = None
     details: Mapping[str, Any] = field(default_factory=dict)
 
 
@@ -88,12 +91,12 @@ class TestResult:
 @dataclass(frozen=True)
 class ProtocolCriteria:
     alpha: float = 0.05
-    min_abs_effect_size: float = 0.0
+    min_abs_effect_size: float = 0.3
 
     def __post_init__(self) -> None:
         if not 0.0 < self.alpha < 1.0:
             raise ProtocolError("alpha must be strictly between 0 and 1.")
-        if self.min_abs_effect_size < 0.0:
+        if not isfinite(self.min_abs_effect_size) or self.min_abs_effect_size < 0.0:
             raise ProtocolError("min_abs_effect_size cannot be negative.")
 
 
@@ -120,7 +123,7 @@ class TIMDRProtocol:
             effect_description=hypothesis.effect_description,
             params=deepcopy(frozen_params),
         )
-        return Preregistration(frozen_hypothesis, fingerprint, frozen_params)
+        return Preregistration(frozen_hypothesis, fingerprint, frozen_params, criteria=self.criteria)
 
     def run_controls(self, controls: Optional[ControlResult]) -> ControlResult:
         """Accept only an explicit control outcome; missing controls never pass."""
@@ -132,7 +135,15 @@ class TIMDRProtocol:
             )
         return controls
 
-    def run_test(self, controls: ControlResult, evidence: Optional[TestEvidence]) -> TestResult:
+    def run_test(self, controls: ControlResult, evidence: Optional[TestEvidence], *,
+                 preregistration: Preregistration | None = None) -> TestResult:
+        # Binding verifies consistency, not an independently proven creation date.
+        if preregistration is None:
+            return TestResult(None, None, "INCONCLUSIVE", "Missing frozen preregistration.")
+        expected = self.preregister(preregistration.hypothesis)
+        if (preregistration.criteria != self.criteria or expected.fingerprint != preregistration.fingerprint
+                or dict(preregistration.frozen_params) != dict(preregistration.hypothesis.params)):
+            raise ProtocolError("Preregistration or criteria changed after freezing.")
         if not controls.passed:
             return TestResult(
                 p_value=None,
@@ -147,6 +158,13 @@ class TIMDRProtocol:
                 verdict="INCONCLUSIVE",
                 reason="No reproducible, pre-registered test evidence was supplied.",
             )
+        if evidence.preregistration_fingerprint != preregistration.fingerprint:
+            return TestResult(None, None, "INCONCLUSIVE", "Evidence is not bound to this preregistration.")
+        method = preregistration.frozen_params.get("method")
+        if not method or evidence.method != method:
+            return TestResult(None, None, "INCONCLUSIVE", "Test method differs from the frozen plan.")
+        if not isfinite(evidence.effect_size):
+            raise ProtocolError("effect_size must be finite.")
         if not 0.0 <= evidence.p_value <= 1.0:
             raise ProtocolError("p_value must be in [0, 1].")
         if not evidence.method.strip():
@@ -290,7 +308,10 @@ class FundamentalModelLTR:
 class TIMDR_AI_System:
     """Combines a transform pipeline with the epistemic guardrail."""
 
-    def __init__(self, protocol: Optional[TIMDRProtocol] = None, model: Optional[FundamentalModelLTR] = None) -> None:
+    def __init__(self, protocol: Optional[TIMDRProtocol] = None, model: Optional[FundamentalModelLTR] = None, *, workflow=None) -> None:
+        if model is not None and workflow is not None:
+            raise ProtocolError("Choose the explicit workflow or the legacy adapter model.")
+        self.workflow = workflow
         self.protocol = protocol or TIMDRProtocol()
         self.model = model or FundamentalModelLTR()
 
@@ -301,6 +322,7 @@ class TIMDR_AI_System:
         *,
         controls: Optional[ControlResult] = None,
         evidence: Optional[TestEvidence] = None,
+        preregistration: Preregistration | None = None,
     ) -> dict[str, Any]:
         hypothesis = Hypothesis(
             name=str(hypothesis_cfg.get("name", "default_hypothesis")),
@@ -308,14 +330,15 @@ class TIMDR_AI_System:
             effect_description=str(hypothesis_cfg.get("effect_description", "")),
             params=deepcopy(dict(hypothesis_cfg.get("params", {}))),
         )
-        preregistration = self.protocol.preregister(hypothesis)
+        if preregistration is not None and self.protocol.preregister(hypothesis).fingerprint != preregistration.fingerprint:
+            raise ProtocolError("Evaluation hypothesis differs from the frozen plan.")
         control_result = self.protocol.run_controls(controls)
-        test_result = self.protocol.run_test(control_result, evidence)
+        test_result = self.protocol.run_test(control_result, evidence, preregistration=preregistration)
         return {
             "preregistration": preregistration,
             "controls": control_result,
             "test_result": test_result,
-            "model_output": self.model.forward(raw_input),
+            "model_output": self.workflow.run(raw_input) if self.workflow is not None else self.model.forward(raw_input),
             "ai_role": "epistemic_filter_not_proof_or_empirical_authority",
         }
 
